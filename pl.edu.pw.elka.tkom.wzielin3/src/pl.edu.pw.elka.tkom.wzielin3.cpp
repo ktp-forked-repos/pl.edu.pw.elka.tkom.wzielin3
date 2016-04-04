@@ -7,9 +7,12 @@
 //============================================================================
 
 #include <iostream>
-using namespace std;
+#include "ConfigurationManager.h"
+#include "HttpService.h"
 
 int main() {
-	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+	ConfigurationManager configuration;
+	HttpService http;
+	http.getHtml(configuration.getWebsiteUrl());
 	return 0;
 }
