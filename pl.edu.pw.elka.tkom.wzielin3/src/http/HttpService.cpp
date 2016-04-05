@@ -23,7 +23,7 @@ std::string HttpService::getHtml(std::string url)
 {
 	std::ifstream stream;
 	int length;
-	stream.open("src/HtmlContent.html");      // open input file
+	stream.open(url.c_str());      // open input file
 	stream.seekg(0, std::ios::end);    // go to the end
 	length = stream.tellg();           // report location (this is the length)
 	stream.seekg(0, std::ios::beg);    // go back to the beginning

@@ -25,13 +25,12 @@ const std::map<std::string, MalwareType> ConfigurationManager::stringToMalwareTy
 
 ConfigurationManager::ConfigurationManager(int argc, char** argv)
 {
-	webSiteUrl = "ransomwaretracker.abuse.ch/tracker";
+	webSiteUrl = "src/HtmlContent.html";//"ransomwaretracker.abuse.ch/tracker";
 	applyMalwareFilter = false;
 	applyThreatFilter = false;
 
-	for(unsigned int i = 0; i < argc; ++i)
+	for(unsigned int i = 1; i < argc; ++i)
 	{
-
 		if(strcmp(argv[i], "-MalwareFilter") == 0)
 		{
 			i++;
@@ -41,6 +40,11 @@ ConfigurationManager::ConfigurationManager(int argc, char** argv)
 		{
 			i++;
 			ConfigureThreatFilter(argv[i]);
+		}
+		else if(strcmp(argv[i], "-WebSiteUrl") == 0)
+		{
+			i++;
+			webSiteUrl = argv[i];
 		}
 	}
 }
