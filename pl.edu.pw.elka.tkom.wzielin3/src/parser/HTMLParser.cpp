@@ -24,14 +24,15 @@ const std::set<std::string> HTMLParser::selfClosingElements
 { "area", "base", "br", "col", "command", "embed", "hr", "img", "input",
 		"keygen", "link", "meta", "param", "source", "track", "wbr" };
 
-void HTMLParser::parse()
+unsigned int HTMLParser::parse()
 {
 	while (currPosition < toParse.size())
 	{
+		parseWhiteSpaces();
 		if (IsNextCloseOpenedElement())
 		{
 			CloseOpenedElement();
-			return;
+			return currPosition;
 		}
 		HTMLElement* element = new HTMLElement();
 		root->innerElements.push_back(element);
@@ -44,6 +45,7 @@ void HTMLParser::parse()
 			parseText(element);
 		}
 	}
+	return currPosition;
 }
 
 void HTMLParser::parseElement(HTMLElement* element)
@@ -56,10 +58,10 @@ void HTMLParser::parseElement(HTMLElement* element)
 		if (TryOpenCurrentElement(element->name))
 		{
 			HTMLParser innerParser(toParse, currPosition, element);
-			innerParser.parse();
+			currPosition = innerParser.parse();
 			break;
 		}
-		HTMLAttribute* attr;
+		HTMLAttribute* attr = new HTMLAttribute();
 		parseAttribute(attr, element->name);
 		element->attributes.push_back(attr);
 
@@ -98,7 +100,7 @@ void HTMLParser::parseAttribute(HTMLAttribute* attr,
 		while (toParse[currPosition] != QUOTATION_MARK)
 		{
 			parseWhiteSpaces();
-			std::string value = parseWord();
+			std::string value = parseQuotedWord();
 			attr->value.push_back(value);
 			parseWhiteSpaces();
 		}
@@ -109,7 +111,17 @@ void HTMLParser::parseAttribute(HTMLAttribute* attr,
 std::string HTMLParser::parseWord()
 {
 	int startPosition = currPosition;
-	while (currPosition < toParse.size() && !isspace(toParse[currPosition]))
+	while (currPosition < toParse.size() && !isspace(toParse[currPosition]) && !isSpecialCharacter(toParse[currPosition]))
+	{
+		currPosition++;
+	}
+	return toParse.substr(startPosition, currPosition - startPosition);
+}
+
+std::string HTMLParser::parseQuotedWord()
+{
+	int startPosition = currPosition;
+	while (currPosition < toParse.size() && !isspace(toParse[currPosition]) && !(toParse[currPosition] == QUOTATION_MARK))
 	{
 		currPosition++;
 	}
@@ -123,6 +135,7 @@ void HTMLParser::parseWhiteSpaces()
 		currPosition++;
 	}
 }
+
 
 bool HTMLParser::IsNextCloseOpenedElement()
 {
@@ -156,7 +169,7 @@ bool HTMLParser::TryCloseCurrentElement(std::string elementName)
 	}
 	if (toParse[currPosition] == CLOSE_TAG
 			&& selfClosingElements.find(elementName)
-					== selfClosingElements.end())
+					!= selfClosingElements.end())
 	{
 		currPosition++;
 		return true;
@@ -168,11 +181,18 @@ bool HTMLParser::TryOpenCurrentElement(std::string elementName)
 {
 	bool openCurrent = toParse[currPosition] == CLOSE_TAG
 			&& selfClosingElements.find(elementName)
-					!= selfClosingElements.end();
+					== selfClosingElements.end();
 	if (openCurrent)
 	{
 		currPosition++;
 		return true;
 	}
 	return false;
+}
+
+bool HTMLParser::isSpecialCharacter(char c)
+{
+	return c == EQUAL_SIGN || c == CLOSE_SLASH
+		|| c == CLOSE_TAG || c == OPEN_TAG
+		|| c == QUOTATION_MARK;
 }

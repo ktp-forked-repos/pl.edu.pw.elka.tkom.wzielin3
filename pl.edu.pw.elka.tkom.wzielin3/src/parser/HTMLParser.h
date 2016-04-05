@@ -19,7 +19,7 @@ public:
 	HTMLParser(std::string toParse, int currentPosition, HTMLElement* root);
 	virtual ~HTMLParser();
 
-	void parse();
+	unsigned int parse();
 private:
 	HTMLElement* root;
 	std::string toParse;
@@ -36,6 +36,7 @@ private:
 	void parseText(HTMLElement* element);
 	void parseAttribute(HTMLAttribute* attr, std::string currentElementName);
 	std::string parseWord();
+	std::string parseQuotedWord();
 	void parseWhiteSpaces();
 
 	//encountered </
@@ -47,5 +48,7 @@ private:
 	bool TryCloseCurrentElement(std::string elementName);
 	//encountered > and element is not self closing
 	bool TryOpenCurrentElement(std::string elementName);
+
+	bool isSpecialCharacter(char c);
 };
 #endif /* PARSER_HTMLPARSER_H_ */

@@ -22,6 +22,9 @@ int main() {
 
 		HTMLElement* root = new HTMLElement();
 		HTMLParser parser(toParse, 0, root);
+		parser.parse();
+
+
 	}
 	catch(const char* e)
 	{
