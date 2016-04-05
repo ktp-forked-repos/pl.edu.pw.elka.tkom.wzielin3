@@ -20,9 +20,8 @@ HTMLParser::~HTMLParser()
 	// TODO Auto-generated destructor stub
 }
 
-const std::set<std::string> HTMLParser::selfClosingElements
-{ "area", "base", "br", "col", "command", "embed", "hr", "img", "input",
-		"keygen", "link", "meta", "param", "source", "track", "wbr" };
+const std::set<std::string> HTMLParser::selfClosingElements =
+{ "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr" };
 
 unsigned int HTMLParser::parse()
 {
