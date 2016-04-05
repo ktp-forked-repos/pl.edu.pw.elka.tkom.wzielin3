@@ -14,12 +14,14 @@
 int main() {
 	ConfigurationManager configuration;
 	HttpService http;
-	HTMLParser parser;
+
 
 	try
 	{
 		std::string toParse = http.getHtml(configuration.getWebsiteUrl());
-		HTMLElement* root = parser.parse(toParse);
+
+		HTMLElement* root = new HTMLElement();
+		HTMLParser parser(toParse, 0, root);
 	}
 	catch(const char* e)
 	{

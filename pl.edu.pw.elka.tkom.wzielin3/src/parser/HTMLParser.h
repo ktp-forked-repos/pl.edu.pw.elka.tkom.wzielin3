@@ -16,28 +16,36 @@
 class HTMLParser
 {
 public:
-	HTMLParser();
+	HTMLParser(std::string toParse, int currentPosition, HTMLElement* root);
 	virtual ~HTMLParser();
 
-	HTMLElement* parse(std::string toParse);
+	void parse();
 private:
+	HTMLElement* root;
 	std::string toParse;
 	unsigned int currPosition;
 
 	static const char OPEN_TAG = '<';
 	static const char CLOSE_TAG = '>';
 	static const char CLOSE_SLASH = '/';
-
+	static const char QUOTATION_MARK = '"';
+	static const char EQUAL_SIGN = '=';
 	static const std::set<std::string> selfClosingElements;
 
-	HTMLElement* parseElement();
-	HTMLElement* parseText();
-	HTMLAttribute* parseAttribute();
+	void parseElement(HTMLElement* element);
+	void parseText(HTMLElement* element);
+	void parseAttribute(HTMLAttribute* attr, std::string currentElementName);
+	std::string parseWord();
+	void parseWhiteSpaces();
 
-	bool isElementSelfClosing(std::string elementName)
-	{
-		return selfClosingElements.find(elementName)
-				!= selfClosingElements.end();
-	}
+	//encountered </
+	bool IsNextCloseOpenedElement();
+	void CloseOpenedElement();
+	//encountered <
+	bool IsNextNewCurrentElement();
+	//encountered /> or element is self closing
+	bool TryCloseCurrentElement(std::string elementName);
+	//encountered > and element is not self closing
+	bool TryOpenCurrentElement(std::string elementName);
 };
 #endif /* PARSER_HTMLPARSER_H_ */
