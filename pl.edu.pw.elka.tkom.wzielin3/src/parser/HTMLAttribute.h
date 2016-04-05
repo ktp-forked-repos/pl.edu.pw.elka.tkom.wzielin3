@@ -16,7 +16,7 @@ public:
 	virtual ~HTMLAttribute();
 
 	std::string name;
-	std::vector<std::string> value;
+	std::vector<std::string> values;
 };
 
 #endif /* PARSER_HTMLATTRIBUTE_H_ */

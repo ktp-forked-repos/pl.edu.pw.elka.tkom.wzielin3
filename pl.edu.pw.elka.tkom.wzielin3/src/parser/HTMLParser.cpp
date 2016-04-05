@@ -101,7 +101,7 @@ void HTMLParser::parseAttribute(HTMLAttribute* attr,
 		{
 			parseWhiteSpaces();
 			std::string value = parseQuotedWord();
-			attr->value.push_back(value);
+			attr->values.push_back(value);
 			parseWhiteSpaces();
 		}
 		currPosition++;
