@@ -7,8 +7,8 @@
 //============================================================================
 
 #include <iostream>
-#include "ConfigurationManager.h"
-#include "HttpService.h"
+#include "configuration/ConfigurationManager.h"
+#include "http/HttpService.h"
 #include "parser/HTMLParser.h"
 #include "interpreter/HTMLInterpreter.h"
 #include "filter/ModelsFilter.h"

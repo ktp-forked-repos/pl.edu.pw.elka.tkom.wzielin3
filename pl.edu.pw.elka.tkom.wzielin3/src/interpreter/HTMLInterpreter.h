@@ -9,6 +9,7 @@
 #define INTERPRETER_HTMLINTERPRETER_H_
 
 #include<vector>
+#include<map>
 #include "ResultModel.h"
 #include "../parser/HTMLElement.h"
 

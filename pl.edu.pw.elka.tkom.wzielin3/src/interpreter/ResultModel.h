@@ -10,25 +10,7 @@
 
 #include<string>
 #include<map>
-
-enum ThreatType
-{
-	BotnetCC,
-	PaymentSite,
-	DistributionSite
-};
-
-enum MalwareType
-{
-	TeslaCrypt,
-	CryptoWall,
-	TorrentLocker,
-	PadCrypt,
-	Locky,
-	CTBLocker,
-	FAKBEN,
-	PayCrypt
-};
+#include"../consts/Enums.h"
 
 /**
  * Objects of this class represent a single entry in the table of parsed HTML.

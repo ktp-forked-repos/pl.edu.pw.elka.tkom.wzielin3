@@ -9,7 +9,9 @@
 #define CONFIGURATIONMANAGER_H_
 
 #include<iostream>
-#include"interpreter/ResultModel.h"
+#include<map>
+#include<string.h>
+#include"../interpreter/ResultModel.h"
 
 /**
  * Class representing configuration of currently run program.
@@ -32,8 +34,20 @@ public:
 	std::string webSiteUrl;
 private:
 
+	/**
+	 * Sets filtering by malware type configuration.
+	 * @param malware filter argv argument received in command line
+	 */
 	void ConfigureMalwareFilter(char* argv);
+
+	/**
+	 * Sets filtering by threat type configuration.
+	 * @param threat filter argv argument received in command line
+	 */
 	void ConfigureThreatFilter(char* argv);
+
+	static const std::map<std::string, ThreatType> stringToThreatType;
+	static const std::map<std::string, MalwareType> stringToMalwareType;
 
 };
 

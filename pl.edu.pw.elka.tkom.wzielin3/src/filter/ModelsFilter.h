@@ -10,6 +10,7 @@
 
 #include<vector>
 #include"../interpreter/ResultModel.h"
+#include"../consts/Enums.h"
 
 class ModelsFilter
 {
