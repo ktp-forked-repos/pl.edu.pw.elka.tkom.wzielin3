@@ -7,10 +7,25 @@
 
 #include "ConfigurationManager.h"
 
-ConfigurationManager::ConfigurationManager()
+ConfigurationManager::ConfigurationManager(int argc, char** argv)
 {
-	// TODO Auto-generated constructor stub
+	webSiteUrl = "ransomwaretracker.abuse.ch/tracker";
+	applyMalwareFilter = false;
+	applyThreatFilter = false;
 
+	for(unsigned int i = 0; i < argc; ++i)
+	{
+		if(argv[i] == "-MalwareFilter")
+		{
+			i++;
+			ConfigureMalwareFilter(argv[i]);
+		}
+		else if(argv[i] == "-ThreatFilter")
+		{
+			i++;
+			ConfigureThreatFilter(argv[i]);
+		}
+	}
 }
 
 ConfigurationManager::~ConfigurationManager()
@@ -18,8 +33,11 @@ ConfigurationManager::~ConfigurationManager()
 	// TODO Auto-generated destructor stub
 }
 
-
-std::string ConfigurationManager::getWebsiteUrl()
+void ConfigurationManager::ConfigureMalwareFilter(char* argv)
 {
-	return "ransomwaretracker.abuse.ch/tracker";
+	//TODO
+}
+void ConfigurationManager::ConfigureThreatFilter(char* argv)
+{
+	//todo
 }

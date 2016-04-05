@@ -11,25 +11,38 @@
 #include "HttpService.h"
 #include "parser/HTMLParser.h"
 #include "interpreter/HTMLInterpreter.h"
+#include "filter/ModelsFilter.h"
 
-int main() {
-	ConfigurationManager configuration;
-	HttpService http;
-	HTMLElement root;
-
+int main(int argc, char** argv)
+{
 	try
 	{
-		std::string toParse = http.getHtml(configuration.getWebsiteUrl());
+		ConfigurationManager configuration(argc, argv);
 
+		HttpService http;
+		std::string toParse = http.getHtml(configuration.webSiteUrl);
+
+		HTMLElement root;
 		HTMLParser parser(toParse, 0, &root);
 		parser.parse();
 
 		HTMLInterpreter interpreter(&root);
-		std::vector<ResultModel*> models = interpreter.interpret();
+		std::vector<ResultModel*> allModels = interpreter.interpret();
 
-		std::cout<<"Finished";
-	}
-	catch(const char* e)
+		ModelsFilter filter(allModels);
+		if(configuration.applyMalwareFilter)
+		{
+			filter.applyMalwareTypeFilter(configuration.malwareType);
+		}
+		if(configuration.applyThreatFilter)
+		{
+			filter.applyThreatTypeFilter((configuration.threaType));
+		}
+
+		std::vector<ResultModel*> filteredModels = filter.getModels();
+
+		std::cout << "Finished";
+	} catch (const char* e)
 	{
 		std::cout << e;
 	}
