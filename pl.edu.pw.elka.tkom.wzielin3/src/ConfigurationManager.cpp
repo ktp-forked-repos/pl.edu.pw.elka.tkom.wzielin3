@@ -23,8 +23,3 @@ std::string ConfigurationManager::getWebsiteUrl()
 {
 	return "ransomwaretracker.abuse.ch/tracker";
 }
-
-std::string ConfigurationManager::getLogFilePath()
-{
-	return "/";
-}

@@ -17,7 +17,6 @@ public:
 	virtual ~ConfigurationManager();
 
 	std::string getWebsiteUrl();
-	std::string getLogFilePath();
 };
 
 #endif /* CONFIGURATIONMANAGER_H_ */
