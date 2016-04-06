@@ -35,13 +35,7 @@ const std::map<std::string, MalwareType> HTMLInterpreter::stringToMalwareType =
 std::vector<ResultModel*> HTMLInterpreter::interpret()
 {
 	HTMLElement* tableRoot = getTableRoot(root);
-	if (tableRoot->innerElements.size() == 0
-			|| tableRoot->innerElements[0]->name != "tbody")
-	{
-		throw "maintable doesn't containt tbody element";
-	}
-	HTMLElement* tbody = tableRoot->innerElements[0];
-	std::vector<HTMLElement*> tableRows = tbody->innerElements;
+	std::vector<HTMLElement*> tableRows = tableRoot->innerElements;
 	std::vector<ResultModel*> results;
 	//skip first element because it is a header
 	for (unsigned int i = 1; i < tableRows.size(); ++i)
@@ -81,6 +75,9 @@ HTMLElement* HTMLInterpreter::getTableRoot(HTMLElement* startFrom)
 				std::string value = values[i];
 				if(value == "maintable")
 				{
+					if(startFrom->innerElements[0]->name == "tbody") {
+						return startFrom->innerElements[0];
+					}
 					return startFrom;
 				}
 			}

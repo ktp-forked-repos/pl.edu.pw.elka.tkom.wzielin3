@@ -25,7 +25,7 @@ const std::map<std::string, MalwareType> ConfigurationManager::stringToMalwareTy
 
 ConfigurationManager::ConfigurationManager(int argc, char** argv)
 {
-	webSiteUrl = "src/HtmlContent.html";//"ransomwaretracker.abuse.ch/tracker";
+	webSiteUrl = "ransomwaretracker.abuse.ch/tracker";
 	applyMalwareFilter = false;
 	applyThreatFilter = false;
 

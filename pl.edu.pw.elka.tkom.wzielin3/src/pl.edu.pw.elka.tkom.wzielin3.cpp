@@ -16,6 +16,8 @@
 
 int main(int argc, char** argv)
 {
+	try
+	{
 	ConfigurationManager configuration(argc, argv);
 
 	HttpService http;
@@ -42,6 +44,11 @@ int main(int argc, char** argv)
 
 	JSONDisplay display;
 	display.display(filteredModels);
+	}
+	catch(const char* e)
+	{
+		std::cerr << e;
+	}
 
 	return 0;
 }

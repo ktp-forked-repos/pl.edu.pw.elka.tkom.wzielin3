@@ -40,6 +40,7 @@ private:
 	static const char QUOTATION_MARK = '"';
 	static const char EQUAL_SIGN = '=';
 	static const std::set<std::string> selfClosingElements;
+	static const std::set<std::string> ignoredElements;
 
 	/**
 	 * Method that extracts HTMLElement, that may have nested elements, from current position.

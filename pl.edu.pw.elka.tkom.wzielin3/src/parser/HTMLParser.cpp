@@ -23,6 +23,9 @@ HTMLParser::~HTMLParser()
 const std::set<std::string> HTMLParser::selfClosingElements =
 { "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr" };
 
+const std::set<std::string> HTMLParser::ignoredElements =
+{ "!DOCTYPE" };
+
 unsigned int HTMLParser::parse()
 {
 	while (currPosition < toParse.size())
@@ -52,6 +55,11 @@ void HTMLParser::parseElement(HTMLElement* element)
 	currPosition++;
 	element->name = parseWord();
 	parseWhiteSpaces();
+	if(ignoredElements.find(element->name) != ignoredElements.end())
+	{
+		CloseOpenedElement();
+		return;
+	}
 	while (!TryCloseCurrentElement(element->name))
 	{
 		if (TryOpenCurrentElement(element->name))
@@ -66,7 +74,6 @@ void HTMLParser::parseElement(HTMLElement* element)
 
 		parseWhiteSpaces();
 	}
-	return;
 }
 
 void HTMLParser::parseText(HTMLElement* element)
