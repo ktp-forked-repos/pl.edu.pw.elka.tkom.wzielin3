@@ -96,10 +96,11 @@ private:
 	bool IsNextCloseOpenedElement();
 
 	/**
-	 * Method that skips closing tag of an element. It will increment current position of parser
-	 * until it reaches > character. Consider using it when IsNextCloseOpenedElement returns true.
+	 * Method that skips all characters until it reaches > character. It will increment current position of parser
+	 * until it reaches > character. Consider using it when IsNextCloseOpenedElement returns true or when you
+	 * want to ignore attributes stored in current element.
 	 */
-	void CloseOpenedElement();
+	void CloseElement();
 
 	/**
 	 * Method that detects opening tag <.

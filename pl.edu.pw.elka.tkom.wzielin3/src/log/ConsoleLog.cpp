@@ -5,27 +5,27 @@
  *      Author: wojciech
  */
 
-#include "JSONDisplay.h"
+#include "ConsoleLog.h"
 
 #include<iostream>
 
-JSONDisplay::JSONDisplay()
+ConsoleLog::ConsoleLog()
 {
 	// TODO Auto-generated constructor stub
 
 }
 
-JSONDisplay::~JSONDisplay()
+ConsoleLog::~ConsoleLog()
 {
 	// TODO Auto-generated destructor stub
 }
 
-const std::map<ThreatType, std::string> JSONDisplay::threatTypeToString =
+const std::map<ThreatType, std::string> ConsoleLog::threatTypeToString =
 {
 { ThreatType::BotnetCC, "BotnetCC" },
 { ThreatType::PaymentSite, "PaymentSite" },
 { ThreatType::DistributionSite, "DistributionSite" }, };
-const std::map<MalwareType, std::string> JSONDisplay::malwareTypeToString =
+const std::map<MalwareType, std::string> ConsoleLog::malwareTypeToString =
 {
 { MalwareType::TeslaCrypt, "TeslaCrypt" },
 { MalwareType::CryptoWall, "CryptoWall" },
@@ -36,26 +36,32 @@ const std::map<MalwareType, std::string> JSONDisplay::malwareTypeToString =
 { MalwareType::FAKBEN, "FAKBEN" },
 { MalwareType::PayCrypt, "PayCrypt" }, };
 
-void JSONDisplay::display(std::vector<ResultModel*> models)
+void ConsoleLog::logResults(std::vector<ResultModel*> models)
 {
 	std::cout << "{\"results\":[";
 	if (models.size() > 0)
 	{
-		display(models[0]);
+		logResult(models[0]);
 	}
 	for (int i = 1; i < models.size(); ++i)
 	{
 		std::cout << ",";
-		display(models[i]);
+		logResult(models[i]);
 	}
 	std::cout << "]}";
 }
 
-void JSONDisplay::display(ResultModel* model)
+void ConsoleLog::logResult(ResultModel* model)
 {
 	std::cout << "{\"date\":\"" << model->date
 			<< "\",\"threat\":\"" << threatTypeToString.find(model->threatType)->second
 			<< "\",\"malware\":\"" << malwareTypeToString.find(model->malwareType)->second
 			<< "\",\"host\":\"" << model->host
 			<< "\"}";
+}
+
+void ConsoleLog::logError(std::string message)
+{
+	std::cerr << message;
+	exit(1);
 }

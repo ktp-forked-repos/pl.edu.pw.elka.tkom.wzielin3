@@ -12,12 +12,10 @@
 #include "parser/HTMLParser.h"
 #include "interpreter/HTMLInterpreter.h"
 #include "filter/ModelsFilter.h"
-#include "console/JSONDisplay.h"
+#include "log/ConsoleLog.h"
 
 int main(int argc, char** argv)
 {
-	try
-	{
 	ConfigurationManager configuration(argc, argv);
 
 	HttpService http;
@@ -42,13 +40,8 @@ int main(int argc, char** argv)
 
 	std::vector<ResultModel*> filteredModels = filter.getModels();
 
-	JSONDisplay display;
-	display.display(filteredModels);
-	}
-	catch(const char* e)
-	{
-		std::cerr << e;
-	}
+	ConsoleLog display;
+	display.logResults(filteredModels);
 
 	return 0;
 }

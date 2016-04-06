@@ -33,7 +33,7 @@ unsigned int HTMLParser::parse()
 		parseWhiteSpaces();
 		if (IsNextCloseOpenedElement())
 		{
-			CloseOpenedElement();
+			CloseElement();
 			return currPosition;
 		}
 		HTMLElement* element = new HTMLElement();
@@ -57,7 +57,7 @@ void HTMLParser::parseElement(HTMLElement* element)
 	parseWhiteSpaces();
 	if(ignoredElements.find(element->name) != ignoredElements.end())
 	{
-		CloseOpenedElement();
+		CloseElement();
 		return;
 	}
 	while (!TryCloseCurrentElement(element->name))
@@ -150,7 +150,7 @@ bool HTMLParser::IsNextCloseOpenedElement()
 	return closeRoot;
 }
 
-void HTMLParser::CloseOpenedElement()
+void HTMLParser::CloseElement()
 {
 	while (toParse[currPosition] != CLOSE_TAG)
 	{

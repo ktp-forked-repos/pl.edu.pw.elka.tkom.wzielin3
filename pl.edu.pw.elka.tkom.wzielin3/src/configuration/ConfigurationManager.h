@@ -36,15 +36,22 @@ private:
 
 	/**
 	 * Sets filtering by malware type configuration.
-	 * @param malware filter argv argument received in command line
+	 * @param argv malware filter argv argument received in command line
 	 */
-	void ConfigureMalwareFilter(char* argv);
+	void ConfigureMalwareFilter(std::string argv);
 
 	/**
 	 * Sets filtering by threat type configuration.
-	 * @param threat filter argv argument received in command line
+	 * @param argv threat filter argv argument received in command line
 	 */
-	void ConfigureThreatFilter(char* argv);
+	void ConfigureThreatFilter(std::string argv);
+
+	/**
+	 * Returns char* as a lowercase string.
+	 * @param arg character array to be transformed
+	 * @returns lowercase string
+	 */
+	static std::string GetLowerCase(char* arg);
 
 	static const std::map<std::string, ThreatType> stringToThreatType;
 	static const std::map<std::string, MalwareType> stringToMalwareType;
