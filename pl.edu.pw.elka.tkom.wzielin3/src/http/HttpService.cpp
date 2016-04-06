@@ -8,16 +8,14 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include "HttpService.h"
+#include"../log/ConsoleLog.h"
 
 HttpService::HttpService()
 {
-	// TODO Auto-generated constructor stub
-
 }
 
 HttpService::~HttpService()
 {
-	// TODO Auto-generated destructor stub
 }
 
 std::string HttpService::getHtml(std::string url)
@@ -31,8 +29,8 @@ std::string HttpService::getHtml(std::string url)
 	fp = popen(command.c_str(), "r");
 	if (fp == NULL)
 	{
-		std::cout << "Failed to run curl command.";
-		exit(1);
+		ConsoleLog log;
+		log.logError("Failed open curl command for reading.");
 	}
 
 	/* Read the output a line at a time - output it. */
@@ -41,6 +39,13 @@ std::string HttpService::getHtml(std::string url)
 		result += buffer;
 	}
 	pclose(fp);
+
+	if(result.size() == 0)
+	{
+		ConsoleLog log;
+		log.logError("No result received from curl command. Make sure you have internet access, have properly installed curl "
+				"and specified a proper web page to be parsed. Default page is http://ransomwaretracker.abuse.ch/tracker/.");
+	}
 
 	return result;
 }

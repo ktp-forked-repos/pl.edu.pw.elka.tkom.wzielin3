@@ -11,13 +11,10 @@
 
 ConsoleLog::ConsoleLog()
 {
-	// TODO Auto-generated constructor stub
-
 }
 
 ConsoleLog::~ConsoleLog()
 {
-	// TODO Auto-generated destructor stub
 }
 
 const std::map<ThreatType, std::string> ConsoleLog::threatTypeToString =
@@ -43,7 +40,7 @@ void ConsoleLog::logResults(std::vector<ResultModel*> models)
 	{
 		logResult(models[0]);
 	}
-	for (int i = 1; i < models.size(); ++i)
+	for (unsigned int i = 1; i < models.size(); ++i)
 	{
 		std::cout << ",";
 		logResult(models[i]);

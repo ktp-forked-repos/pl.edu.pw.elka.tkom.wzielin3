@@ -9,12 +9,9 @@
 
 HTMLAttribute::HTMLAttribute()
 {
-	// TODO Auto-generated constructor stub
-
 }
 
 HTMLAttribute::~HTMLAttribute()
 {
-	// TODO Auto-generated destructor stub
 }
 

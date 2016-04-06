@@ -5,7 +5,9 @@
  *      Author: wojciech
  */
 
+#include <sstream>
 #include "HTMLParser.h"
+#include "../log/ConsoleLog.h"
 
 HTMLParser::HTMLParser(std::string toParse, int currentPosition,
 		HTMLElement* root)
@@ -17,7 +19,6 @@ HTMLParser::HTMLParser(std::string toParse, int currentPosition,
 
 HTMLParser::~HTMLParser()
 {
-	// TODO Auto-generated destructor stub
 }
 
 const std::set<std::string> HTMLParser::selfClosingElements =
@@ -100,7 +101,7 @@ void HTMLParser::parseAttribute(HTMLAttribute* attr,
 		parseWhiteSpaces();
 		if (toParse[currPosition] != QUOTATION_MARK)
 		{
-			throw "Unexpeted character when parsing attribute - exepcted '\"'.";
+			logParserError("Expected begining of attribute with quotation mark but received");
 		}
 		currPosition++;
 		while (toParse[currPosition] != QUOTATION_MARK)
@@ -117,6 +118,18 @@ void HTMLParser::parseAttribute(HTMLAttribute* attr,
 std::string HTMLParser::parseWord()
 {
 	int startPosition = currPosition;
+	if(isspace(toParse[currPosition]))
+	{
+		logParserError("Expected a word but received a whitespace character.");
+	}
+	if(isSpecialCharacter(toParse[currPosition]))
+	{
+		logParserError("Expected a word but received a special character.");
+	}
+	if(currPosition >= toParse.size())
+	{
+		logParserError("Expected a word but input string unexpectedly ended");
+	}
 	while (currPosition < toParse.size() && !isspace(toParse[currPosition]) && !isSpecialCharacter(toParse[currPosition]))
 	{
 		currPosition++;
@@ -127,6 +140,11 @@ std::string HTMLParser::parseWord()
 std::string HTMLParser::parseQuotedWord()
 {
 	int startPosition = currPosition;
+	parseWhiteSpaces();
+	if(currPosition >= toParse.size())
+	{
+		logParserError("Expected a quoted word but input string unexpectedly ended");
+	}
 	while (currPosition < toParse.size() && !isspace(toParse[currPosition]) && !(toParse[currPosition] == QUOTATION_MARK))
 	{
 		currPosition++;
@@ -201,4 +219,18 @@ bool HTMLParser::isSpecialCharacter(char c)
 	return c == EQUAL_SIGN || c == CLOSE_SLASH
 		|| c == CLOSE_TAG || c == OPEN_TAG
 		|| c == QUOTATION_MARK;
+}
+
+void HTMLParser::logParserError(std::string message)
+{
+	std::string error("Error in parser at position ");
+
+	std::stringstream ss;
+	ss << currPosition;
+
+	error += ss.str();
+	error += ". ";
+	error += message;
+	ConsoleLog log;
+	log.logError(error);
 }

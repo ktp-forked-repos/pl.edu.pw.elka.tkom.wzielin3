@@ -40,8 +40,8 @@ int main(int argc, char** argv)
 
 	std::vector<ResultModel*> filteredModels = filter.getModels();
 
-	ConsoleLog display;
-	display.logResults(filteredModels);
+	ConsoleLog log;
+	log.logResults(filteredModels);
 
 	return 0;
 }

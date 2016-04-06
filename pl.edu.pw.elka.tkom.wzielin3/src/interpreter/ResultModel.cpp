@@ -16,5 +16,4 @@ ResultModel::ResultModel()
 
 ResultModel::~ResultModel()
 {
-	// TODO Auto-generated destructor stub
 }

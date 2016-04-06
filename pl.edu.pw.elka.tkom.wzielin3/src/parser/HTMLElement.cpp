@@ -9,8 +9,6 @@
 
 HTMLElement::HTMLElement()
 {
-	// TODO Auto-generated constructor stub
-
 }
 
 HTMLElement::~HTMLElement()

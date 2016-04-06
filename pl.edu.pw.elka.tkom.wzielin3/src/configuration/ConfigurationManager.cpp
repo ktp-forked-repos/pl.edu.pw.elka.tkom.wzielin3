@@ -57,7 +57,6 @@ ConfigurationManager::ConfigurationManager(int argc, char** argv)
 
 ConfigurationManager::~ConfigurationManager()
 {
-	// TODO Auto-generated destructor stub
 }
 
 void ConfigurationManager::ConfigureMalwareFilter(std::string argv)

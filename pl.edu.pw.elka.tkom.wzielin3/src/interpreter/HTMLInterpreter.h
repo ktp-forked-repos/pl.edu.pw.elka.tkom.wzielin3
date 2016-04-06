@@ -53,6 +53,13 @@ private:
 	 */
 	ResultModel* interpretTableRow(HTMLElement* tableRow);
 
+	/**
+	 * Method that checks if a HTMLElement is a properly structured table row.
+	 * @param tableRow HTMLElement to validate
+	 * @returns true if the HTMLElement is a valid tableRow, false otherwise.
+	 */
+	bool isValidTableRow(HTMLElement* tableRow);
+
 
 };
 

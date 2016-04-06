@@ -135,5 +135,11 @@ private:
 	 * @returns true if c is a special character.
 	 */
 	bool isSpecialCharacter(char c);
+
+	/**
+	 * Registers parser error with logger used in application which then terminates execution of program.
+	 * @parser message to be registered.
+	 */
+	void logParserError(std::string message);
 };
 #endif /* PARSER_HTMLPARSER_H_ */

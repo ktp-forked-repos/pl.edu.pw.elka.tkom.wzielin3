@@ -10,11 +10,12 @@
 ModelsFilter::ModelsFilter(std::vector<ResultModel*> models)
 {
 	this->models = models;
+	applyMalwareFilter = false;
+	applyThreatFilter = false;
 }
 
 ModelsFilter::~ModelsFilter()
 {
-	// TODO Auto-generated destructor stub
 }
 
 std::vector<ResultModel*> ModelsFilter::getModels()
