@@ -19,7 +19,7 @@ HTMLInterpreter::~HTMLInterpreter()
 
 const std::map<std::string, ThreatType> HTMLInterpreter::stringToThreatType =
 {
-{ "Botnet C&C", ThreatType::BotnetCC },
+{ "Botnet C&amp;C", ThreatType::BotnetCC },
 { "Payment Site", ThreatType::PaymentSite },
 { "Distribution Site", ThreatType::DistributionSite }, };
 const std::map<std::string, MalwareType> HTMLInterpreter::stringToMalwareType =

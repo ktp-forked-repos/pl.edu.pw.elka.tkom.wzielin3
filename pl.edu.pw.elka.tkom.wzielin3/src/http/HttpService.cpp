@@ -23,7 +23,7 @@ std::string HttpService::getHtml(std::string url)
 	FILE *fp;
 	char buffer[1024];
 	std::string result = "";
-	std::string command = "curl -X GET " + url + " 2> /dev/null";
+	std::string command = "curl " + url + " 2> /dev/null";
 
 	/* Open the command for reading. */
 	fp = popen(command.c_str(), "r");

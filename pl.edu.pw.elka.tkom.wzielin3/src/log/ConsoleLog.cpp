@@ -59,6 +59,6 @@ void ConsoleLog::logResult(ResultModel* model)
 
 void ConsoleLog::logError(std::string message)
 {
-	std::cerr << message;
+	std::cerr << message << "\n";;
 	exit(1);
 }
