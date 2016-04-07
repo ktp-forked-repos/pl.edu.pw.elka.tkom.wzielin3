@@ -5,20 +5,21 @@
  *      Author: wojciech
  */
 
+#include "Http.h"
+
 #include<stdio.h>
 #include<stdlib.h>
-#include "HttpService.h"
 #include"../log/ConsoleLog.h"
 
-HttpService::HttpService()
+Http::Http()
 {
 }
 
-HttpService::~HttpService()
+Http::~Http()
 {
 }
 
-std::string HttpService::getHtml(std::string url)
+std::string Http::getHtml(std::string url)
 {
 	FILE *fp;
 	char buffer[1024];

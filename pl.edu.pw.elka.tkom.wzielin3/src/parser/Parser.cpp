@@ -5,11 +5,12 @@
  *      Author: wojciech
  */
 
+#include "Parser.h"
+
 #include <sstream>
-#include "HTMLParser.h"
 #include "../log/ConsoleLog.h"
 
-HTMLParser::HTMLParser(std::string toParse, int currentPosition,
+Parser::Parser(std::string toParse, int currentPosition,
 		HTMLElement* root)
 {
 	this->toParse = toParse;
@@ -17,17 +18,17 @@ HTMLParser::HTMLParser(std::string toParse, int currentPosition,
 	this->root = root;
 }
 
-HTMLParser::~HTMLParser()
+Parser::~Parser()
 {
 }
 
-const std::set<std::string> HTMLParser::selfClosingElements =
+const std::set<std::string> Parser::selfClosingElements =
 { "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr" };
 
-const std::set<std::string> HTMLParser::ignoredElements =
+const std::set<std::string> Parser::ignoredElements =
 { "!DOCTYPE" };
 
-unsigned int HTMLParser::parse()
+unsigned int Parser::parse()
 {
 	while (currPosition < toParse.size())
 	{
@@ -51,7 +52,7 @@ unsigned int HTMLParser::parse()
 	return currPosition;
 }
 
-void HTMLParser::parseElement(HTMLElement* element)
+void Parser::parseElement(HTMLElement* element)
 {
 	currPosition++;
 	element->name = parseWord();
@@ -65,7 +66,7 @@ void HTMLParser::parseElement(HTMLElement* element)
 	{
 		if (TryOpenCurrentElement(element->name))
 		{
-			HTMLParser innerParser(toParse, currPosition, element);
+			Parser innerParser(toParse, currPosition, element);
 			currPosition = innerParser.parse();
 			break;
 		}
@@ -77,7 +78,7 @@ void HTMLParser::parseElement(HTMLElement* element)
 	}
 }
 
-void HTMLParser::parseText(HTMLElement* element)
+void Parser::parseText(HTMLElement* element)
 {
 	int startPosition = currPosition;
 	while (currPosition < toParse.size() && !IsNextNewCurrentElement()
@@ -90,7 +91,7 @@ void HTMLParser::parseText(HTMLElement* element)
 	return;
 }
 
-void HTMLParser::parseAttribute(HTMLAttribute* attr,
+void Parser::parseAttribute(HTMLAttribute* attr,
 		std::string currentElementName)
 {
 	attr->name = parseWord();
@@ -115,7 +116,7 @@ void HTMLParser::parseAttribute(HTMLAttribute* attr,
 	}
 }
 
-std::string HTMLParser::parseWord()
+std::string Parser::parseWord()
 {
 	int startPosition = currPosition;
 	if(isspace(toParse[currPosition]))
@@ -137,7 +138,7 @@ std::string HTMLParser::parseWord()
 	return toParse.substr(startPosition, currPosition - startPosition);
 }
 
-std::string HTMLParser::parseQuotedWord()
+std::string Parser::parseQuotedWord()
 {
 	int startPosition = currPosition;
 	parseWhiteSpaces();
@@ -152,7 +153,7 @@ std::string HTMLParser::parseQuotedWord()
 	return toParse.substr(startPosition, currPosition - startPosition);
 }
 
-void HTMLParser::parseWhiteSpaces()
+void Parser::parseWhiteSpaces()
 {
 	while(isspace(toParse[currPosition]))
 	{
@@ -161,14 +162,14 @@ void HTMLParser::parseWhiteSpaces()
 }
 
 
-bool HTMLParser::IsNextCloseOpenedElement()
+bool Parser::IsNextCloseOpenedElement()
 {
 	bool closeRoot = toParse[currPosition] == OPEN_TAG
 			&& toParse[currPosition + 1] == CLOSE_SLASH;
 	return closeRoot;
 }
 
-void HTMLParser::CloseElement()
+void Parser::CloseElement()
 {
 	while (toParse[currPosition] != CLOSE_TAG)
 	{
@@ -177,13 +178,13 @@ void HTMLParser::CloseElement()
 	currPosition++;
 }
 
-bool HTMLParser::IsNextNewCurrentElement()
+bool Parser::IsNextNewCurrentElement()
 {
 	return toParse[currPosition] == OPEN_TAG
 			&& toParse[currPosition + 1] != CLOSE_SLASH;
 }
 
-bool HTMLParser::TryCloseCurrentElement(std::string elementName)
+bool Parser::TryCloseCurrentElement(std::string elementName)
 {
 	if (toParse[currPosition] == CLOSE_SLASH
 			&& toParse[currPosition + 1] == CLOSE_TAG)
@@ -201,7 +202,7 @@ bool HTMLParser::TryCloseCurrentElement(std::string elementName)
 	return false;
 }
 
-bool HTMLParser::TryOpenCurrentElement(std::string elementName)
+bool Parser::TryOpenCurrentElement(std::string elementName)
 {
 	bool openCurrent = toParse[currPosition] == CLOSE_TAG
 			&& selfClosingElements.find(elementName)
@@ -214,14 +215,14 @@ bool HTMLParser::TryOpenCurrentElement(std::string elementName)
 	return false;
 }
 
-bool HTMLParser::isSpecialCharacter(char c)
+bool Parser::isSpecialCharacter(char c)
 {
 	return c == EQUAL_SIGN || c == CLOSE_SLASH
 		|| c == CLOSE_TAG || c == OPEN_TAG
 		|| c == QUOTATION_MARK;
 }
 
-void HTMLParser::logParserError(std::string message)
+void Parser::logParserError(std::string message)
 {
 	std::string error("Error in parser at position ");
 

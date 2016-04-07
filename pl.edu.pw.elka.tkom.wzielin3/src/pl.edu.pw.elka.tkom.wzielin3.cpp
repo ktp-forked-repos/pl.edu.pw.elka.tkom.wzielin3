@@ -8,21 +8,25 @@
 
 #include <iostream>
 #include "configuration/ConfigurationManager.h"
-#include "http/HttpService.h"
-#include "parser/HTMLParser.h"
 #include "interpreter/HTMLInterpreter.h"
 #include "filter/ModelsFilter.h"
+#include "http/Http.h"
 #include "log/ConsoleLog.h"
+#include "parser/Parser.h"
+#include "lexer/Lexer.h"
 
 int main(int argc, char** argv)
 {
 	ConfigurationManager configuration(argc, argv);
 
-	HttpService http;
+	Http http;
 	std::string toParse = http.getHtml(configuration.webSiteUrl);
 
+	Lexer lexer(toParse);
+	std::vector<LexerToken*> tokens = lexer.scan();
+
 	HTMLElement root;
-	HTMLParser parser(toParse, 0, &root);
+	Parser parser(toParse, 0, &root);
 	parser.parse();
 
 	HTMLInterpreter interpreter(&root);

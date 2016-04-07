@@ -5,15 +5,15 @@
  *      Author: wojciech
  */
 
-#ifndef PARSER_HTMLPARSER_H_
-#define PARSER_HTMLPARSER_H_
+#ifndef PARSER_PARSER_H_
+#define PARSER_PARSER_H_
 
 #include<vector>
 #include<set>
 #include<string>
 #include"HTMLElement.h"
 
-class HTMLParser
+class Parser
 {
 public:
 	/**
@@ -21,8 +21,8 @@ public:
 	 * @param currentPoisition index in the toParse string from which parse should start
 	 * @param root HTMLElement to which parser will append parsed elements
 	 */
-	HTMLParser(std::string toParse, int currentPosition, HTMLElement* root);
-	virtual ~HTMLParser();
+	Parser(std::string toParse, int currentPosition, HTMLElement* root);
+	virtual ~Parser();
 
 	/**
 	 * Method that starts parsing process.
@@ -142,4 +142,4 @@ private:
 	 */
 	void logParserError(std::string message);
 };
-#endif /* PARSER_HTMLPARSER_H_ */
+#endif /* PARSER_PARSER_H_ */

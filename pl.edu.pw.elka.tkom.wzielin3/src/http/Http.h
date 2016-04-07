@@ -10,11 +10,11 @@
 
 #include <iostream>
 
-class HttpService
+class Http
 {
 public:
-	HttpService();
-	virtual ~HttpService();
+	Http();
+	virtual ~Http();
 
 	std::string getHtml(std::string url);
 };
