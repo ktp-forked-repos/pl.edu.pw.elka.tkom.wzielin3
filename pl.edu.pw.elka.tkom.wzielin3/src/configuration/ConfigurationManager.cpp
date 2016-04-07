@@ -31,26 +31,28 @@ ConfigurationManager::ConfigurationManager(int argc, char** argv)
 	applyMalwareFilter = false;
 	applyThreatFilter = false;
 
-	for(int i = 1; i < argc - 1; i += 2)
+	for (int i = 1; i < argc - 1; i += 2)
 	{
 		std::string command = GetLowerCase(argv[i]);
 		std::string value = GetLowerCase(argv[i + 1]);
-		if(command == "-malware")
+		if (command == "-malware")
 		{
 			ConfigureMalwareFilter(value);
 		}
-		else if(command == "-threat")
+		else if (command == "-threat")
 		{
 			ConfigureThreatFilter(value);
 		}
-		else if(command == "-url")
+		else if (command == "-url")
 		{
 			webSiteUrl = value;
 		}
 		else
 		{
 			ConsoleLog log;
-			log.logError("Command " + command + " not found. Available commands: -malware, -threat, -url.");
+			log.logError(
+					"Command " + command
+							+ " not found. Available commands: -malware, -threat, -url.");
 		}
 	}
 }
@@ -61,8 +63,9 @@ ConfigurationManager::~ConfigurationManager()
 
 void ConfigurationManager::ConfigureMalwareFilter(std::string argv)
 {
-	std::map<std::string, MalwareType>::const_iterator it = stringToMalwareType.find(argv);
-	if(it != stringToMalwareType.end())
+	std::map<std::string, MalwareType>::const_iterator it =
+			stringToMalwareType.find(argv);
+	if (it != stringToMalwareType.end())
 	{
 		applyMalwareFilter = true;
 		malwareType = it->second;
@@ -70,15 +73,18 @@ void ConfigurationManager::ConfigureMalwareFilter(std::string argv)
 	else
 	{
 		ConsoleLog log;
-		log.logError("Malware filter " + argv +  " not found. Must be one of following: TeslaCrypt, "
-				"CryptoWall, TorrentLocker, PadCrypt, Locky, CTBLocker, FAKBEN, PayCrypt.");
+		log.logError(
+				"Malware filter " + argv
+						+ " not found. Must be one of following: TeslaCrypt, "
+								"CryptoWall, TorrentLocker, PadCrypt, Locky, CTBLocker, FAKBEN, PayCrypt.");
 	}
 }
 
 void ConfigurationManager::ConfigureThreatFilter(std::string argv)
 {
-	std::map<std::string, ThreatType>::const_iterator it = stringToThreatType.find(argv);
-	if(it != stringToThreatType.end())
+	std::map<std::string, ThreatType>::const_iterator it =
+			stringToThreatType.find(argv);
+	if (it != stringToThreatType.end())
 	{
 		applyThreatFilter = true;
 		threaType = it->second;
@@ -86,8 +92,10 @@ void ConfigurationManager::ConfigureThreatFilter(std::string argv)
 	else
 	{
 		ConsoleLog log;
-		log.logError("Threat filter " + argv +  " not found. Must be one of following: "
-				"BotnetCC, PaymentSite, DistributionSite.");
+		log.logError(
+				"Threat filter " + argv
+						+ " not found. Must be one of following: "
+								"BotnetCC, PaymentSite, DistributionSite.");
 	}
 }
 

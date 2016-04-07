@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 	std::vector<LexerToken*> tokens = lexer.scan();
 
 	HTMLElement root;
-	Parser parser(toParse, 0, &root);
+	Parser parser(tokens, 0, &root);
 	parser.parse();
 
 	HTMLInterpreter interpreter(&root);

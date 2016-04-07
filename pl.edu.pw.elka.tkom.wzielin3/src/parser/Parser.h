@@ -12,16 +12,17 @@
 #include<set>
 #include<string>
 #include"HTMLElement.h"
+#include"../lexer/LexerToken.h"
 
 class Parser
 {
 public:
 	/**
-	 * @param toParse string which should be parsed
+	 * @param tokens to be parsed
 	 * @param currentPoisition index in the toParse string from which parse should start
 	 * @param root HTMLElement to which parser will append parsed elements
 	 */
-	Parser(std::string toParse, int currentPosition, HTMLElement* root);
+	Parser(std::vector<LexerToken*> tokens, int currentPosition, HTMLElement* root);
 	virtual ~Parser();
 
 	/**
@@ -31,16 +32,12 @@ public:
 	unsigned int parse();
 private:
 	HTMLElement* root;
-	std::string toParse;
+	std::vector<LexerToken*> tokens;
 	unsigned int currPosition;
 
-	static const char OPEN_TAG = '<';
-	static const char CLOSE_TAG = '>';
-	static const char CLOSE_SLASH = '/';
-	static const char QUOTATION_MARK = '"';
-	static const char EQUAL_SIGN = '=';
 	static const std::set<std::string> selfClosingElements;
 	static const std::set<std::string> ignoredElements;
+	static const std::map<LexerTokenType, std::string> tokenTypeToString;
 
 	/**
 	 * Method that extracts HTMLElement, that may have nested elements, from current position.
@@ -67,20 +64,12 @@ private:
 	void parseAttribute(HTMLAttribute* attr, std::string currentElementName);
 
 	/**
-	 * Method that extracts a word from current position. Shoudl be used for words that
-	 * are not in quotation marks, i.e. attribute names, element names.
-	 * @returns std::string that begins in current posistion and
-	 * ends with either a whitespace or any html special character.
-	 */
-	std::string parseWord();
-
-	/**
 	 * Method that extracts a word from current position. Should be used for words that
 	 * are in quoatation marks, i.e. attribute values.
 	 * @returns std::string that begins in current position and
 	 * ends with either a whitespace or a quotation mark.
 	 */
-	std::string parseQuotedWord();
+	std::string parseAttributeValue();
 
 	/**
 	 * Method used for skipping whitespaces. Increments current position as long as
@@ -89,24 +78,11 @@ private:
 	void parseWhiteSpaces();
 
 	/**
-	 * Method that checks whether next characters indicate that current root element is to be closed.
-	 * It detects </ so tags like </div>, </html> etc.
-	 * @returns true if current root element is ending.
-	 */
-	bool IsNextCloseOpenedElement();
-
-	/**
 	 * Method that skips all characters until it reaches > character. It will increment current position of parser
 	 * until it reaches > character. Consider using it when IsNextCloseOpenedElement returns true or when you
 	 * want to ignore attributes stored in current element.
 	 */
 	void CloseElement();
-
-	/**
-	 * Method that detects opening tag <.
-	 * @returns true when next characters belong to a new element.
-	 */
-	bool IsNextNewCurrentElement();
 
 	/**
 	 * When parsing an opening tag of an element it detects whether next characters
@@ -129,17 +105,15 @@ private:
 	 */
 	bool TryOpenCurrentElement(std::string elementName);
 
-	/**
-	 * Checks if character is a special HTML character.
-	 * @param c character to be checked
-	 * @returns true if c is a special character.
-	 */
-	bool isSpecialCharacter(char c);
+	void expectMoreTokens();
+	void expectTokenOfType(LexerTokenType type);
+	bool previousTokenIsOfType(LexerTokenType type);
+	bool currentTokenIsOfType(LexerTokenType type);
 
 	/**
 	 * Registers parser error with logger used in application which then terminates execution of program.
 	 * @parser message to be registered.
 	 */
-	void logParserError(std::string message);
+	void logError(std::string message);
 };
 #endif /* PARSER_PARSER_H_ */

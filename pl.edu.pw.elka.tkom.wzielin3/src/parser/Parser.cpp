@@ -10,10 +10,10 @@
 #include <sstream>
 #include "../log/ConsoleLog.h"
 
-Parser::Parser(std::string toParse, int currentPosition,
+Parser::Parser(std::vector<LexerToken*> tokens, int currentPosition,
 		HTMLElement* root)
 {
-	this->toParse = toParse;
+	this->tokens = tokens;
 	this->currPosition = currentPosition;
 	this->root = root;
 }
@@ -23,24 +23,38 @@ Parser::~Parser()
 }
 
 const std::set<std::string> Parser::selfClosingElements =
-{ "area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr" };
+{ "area", "base", "br", "col", "command", "embed", "hr", "img", "input",
+		"keygen", "link", "meta", "param", "source", "track", "wbr" };
 
 const std::set<std::string> Parser::ignoredElements =
-{ "!DOCTYPE" };
+{ "!DOCTYPE", "DOCTYPE" };
+
+const std::map<LexerTokenType, std::string> Parser::tokenTypeToString =
+{
+{ LexerTokenType::OPEN_TAG, "<" },
+{ LexerTokenType::CLOSE_TAG, ">" },
+{ LexerTokenType::OPEN_SLASHED_TAG, "</" },
+{ LexerTokenType::CLOSE_SLASHED_TAG, "/>" },
+{ LexerTokenType::BACKWARD_SLASH, "\\" },
+{ LexerTokenType::FORWARD_SLASH, "/" },
+{ LexerTokenType::WORD, "WORD" },
+{ LexerTokenType::QUOTE_SIGN, "\"" },
+{ LexerTokenType::EQUAL_SIGN, "=" },
+{ LexerTokenType::WHITESPACE, "WHITESPACE" } };
 
 unsigned int Parser::parse()
 {
-	while (currPosition < toParse.size())
+	parseWhiteSpaces();
+	while (currPosition < tokens.size())
 	{
-		parseWhiteSpaces();
-		if (IsNextCloseOpenedElement())
+		if (currentTokenIsOfType(LexerTokenType::OPEN_SLASHED_TAG))
 		{
 			CloseElement();
 			return currPosition;
 		}
 		HTMLElement* element = new HTMLElement();
 		root->innerElements.push_back(element);
-		if (IsNextNewCurrentElement())
+		if (currentTokenIsOfType(LexerTokenType::OPEN_TAG))
 		{
 			parseElement(element);
 		}
@@ -48,6 +62,7 @@ unsigned int Parser::parse()
 		{
 			parseText(element);
 		}
+		parseWhiteSpaces();
 	}
 	return currPosition;
 }
@@ -55,9 +70,10 @@ unsigned int Parser::parse()
 void Parser::parseElement(HTMLElement* element)
 {
 	currPosition++;
-	element->name = parseWord();
+	expectTokenOfType(LexerTokenType::WORD);
+	element->name = tokens[currPosition]->getText();
 	parseWhiteSpaces();
-	if(ignoredElements.find(element->name) != ignoredElements.end())
+	if (ignoredElements.find(element->name) != ignoredElements.end())
 	{
 		CloseElement();
 		return;
@@ -66,7 +82,7 @@ void Parser::parseElement(HTMLElement* element)
 	{
 		if (TryOpenCurrentElement(element->name))
 		{
-			Parser innerParser(toParse, currPosition, element);
+			Parser innerParser(tokens, currPosition, element);
 			currPosition = innerParser.parse();
 			break;
 		}
@@ -80,35 +96,32 @@ void Parser::parseElement(HTMLElement* element)
 
 void Parser::parseText(HTMLElement* element)
 {
-	int startPosition = currPosition;
-	while (currPosition < toParse.size() && !IsNextNewCurrentElement()
-			&& !IsNextCloseOpenedElement())
+	element->textContent = "";
+	while (currPosition < tokens.size()
+			&& !currentTokenIsOfType(OPEN_SLASHED_TAG)
+			&& !currentTokenIsOfType(OPEN_TAG))
 	{
-		currPosition++;
+		element->textContent += tokens[currPosition]->getText();
 	}
-	element->textContent = toParse.substr(startPosition,
-			currPosition - startPosition);
-	return;
 }
 
-void Parser::parseAttribute(HTMLAttribute* attr,
-		std::string currentElementName)
+void Parser::parseAttribute(HTMLAttribute* attr, std::string currentElementName)
 {
-	attr->name = parseWord();
+	expectTokenOfType(LexerTokenType::WORD);
+	attr->name = tokens[currPosition]->getText();
+	currPosition++;
 	parseWhiteSpaces();
-	if (toParse[currPosition] == EQUAL_SIGN)
+	if (currentTokenIsOfType(LexerTokenType::EQUAL_SIGN))
 	{
 		currPosition++;
 		parseWhiteSpaces();
-		if (toParse[currPosition] != QUOTATION_MARK)
-		{
-			logParserError("Expected begining of attribute with quotation mark but received");
-		}
+		expectTokenOfType(LexerTokenType::QUOTE_SIGN);
 		currPosition++;
-		while (toParse[currPosition] != QUOTATION_MARK)
+		while (currentTokenIsOfType(LexerTokenType::QUOTE_SIGN))
+			;
 		{
 			parseWhiteSpaces();
-			std::string value = parseQuotedWord();
+			std::string value = parseAttributeValue();
 			attr->values.push_back(value);
 			parseWhiteSpaces();
 		}
@@ -116,85 +129,51 @@ void Parser::parseAttribute(HTMLAttribute* attr,
 	}
 }
 
-std::string Parser::parseWord()
+std::string Parser::parseAttributeValue()
 {
-	int startPosition = currPosition;
-	if(isspace(toParse[currPosition]))
-	{
-		logParserError("Expected a word but received a whitespace character.");
-	}
-	if(isSpecialCharacter(toParse[currPosition]))
-	{
-		logParserError("Expected a word but received a special character.");
-	}
-	if(currPosition >= toParse.size())
-	{
-		logParserError("Expected a word but input string unexpectedly ended");
-	}
-	while (currPosition < toParse.size() && !isspace(toParse[currPosition]) && !isSpecialCharacter(toParse[currPosition]))
-	{
-		currPosition++;
-	}
-	return toParse.substr(startPosition, currPosition - startPosition);
-}
-
-std::string Parser::parseQuotedWord()
-{
-	int startPosition = currPosition;
 	parseWhiteSpaces();
-	if(currPosition >= toParse.size())
-	{
-		logParserError("Expected a quoted word but input string unexpectedly ended");
-	}
-	while (currPosition < toParse.size() && !isspace(toParse[currPosition]) && !(toParse[currPosition] == QUOTATION_MARK))
+	expectMoreTokens();
+	std::string result = "";
+	while (currPosition < tokens.size()
+			&& !currentTokenIsOfType(LexerTokenType::WHITESPACE)
+			&& (!currentTokenIsOfType(LexerTokenType::QUOTE_SIGN)
+					|| previousTokenIsOfType(LexerTokenType::BACKWARD_SLASH)))
 	{
 		currPosition++;
+		if (!currentTokenIsOfType(LexerTokenType::BACKWARD_SLASH)
+				|| previousTokenIsOfType(LexerTokenType::BACKWARD_SLASH))
+		{
+			result += tokens[currPosition]->getText();
+		}
 	}
-	return toParse.substr(startPosition, currPosition - startPosition);
+	return result;
 }
 
 void Parser::parseWhiteSpaces()
 {
-	while(isspace(toParse[currPosition]))
+	while (currPosition < tokens.size()
+			&& tokens[currPosition]->type == LexerTokenType::WHITESPACE)
 	{
 		currPosition++;
 	}
 }
 
-
-bool Parser::IsNextCloseOpenedElement()
-{
-	bool closeRoot = toParse[currPosition] == OPEN_TAG
-			&& toParse[currPosition + 1] == CLOSE_SLASH;
-	return closeRoot;
-}
-
 void Parser::CloseElement()
 {
-	while (toParse[currPosition] != CLOSE_TAG)
+	while (!currentTokenIsOfType(LexerTokenType::CLOSE_SLASHED_TAG)
+			&& !currentTokenIsOfType(LexerTokenType::CLOSE_TAG))
 	{
 		currPosition++;
 	}
 	currPosition++;
 }
 
-bool Parser::IsNextNewCurrentElement()
-{
-	return toParse[currPosition] == OPEN_TAG
-			&& toParse[currPosition + 1] != CLOSE_SLASH;
-}
-
 bool Parser::TryCloseCurrentElement(std::string elementName)
 {
-	if (toParse[currPosition] == CLOSE_SLASH
-			&& toParse[currPosition + 1] == CLOSE_TAG)
-	{
-		currPosition += 2;
-		return true;
-	}
-	if (toParse[currPosition] == CLOSE_TAG
-			&& selfClosingElements.find(elementName)
-					!= selfClosingElements.end())
+	if (tokens[currPosition]->type == CLOSE_SLASHED_TAG
+			|| (tokens[currPosition]->type == CLOSE_TAG
+					&& selfClosingElements.find(elementName)
+							!= selfClosingElements.end()))
 	{
 		currPosition++;
 		return true;
@@ -204,10 +183,9 @@ bool Parser::TryCloseCurrentElement(std::string elementName)
 
 bool Parser::TryOpenCurrentElement(std::string elementName)
 {
-	bool openCurrent = toParse[currPosition] == CLOSE_TAG
+	if (currentTokenIsOfType(LexerTokenType::CLOSE_TAG)
 			&& selfClosingElements.find(elementName)
-					== selfClosingElements.end();
-	if (openCurrent)
+					== selfClosingElements.end())
 	{
 		currPosition++;
 		return true;
@@ -215,14 +193,38 @@ bool Parser::TryOpenCurrentElement(std::string elementName)
 	return false;
 }
 
-bool Parser::isSpecialCharacter(char c)
+void Parser::expectMoreTokens()
 {
-	return c == EQUAL_SIGN || c == CLOSE_SLASH
-		|| c == CLOSE_TAG || c == OPEN_TAG
-		|| c == QUOTATION_MARK;
+	if (currPosition >= tokens.size())
+	{
+		logError("Expected more tokens. Input unexpectedly ended.");
+	}
 }
 
-void Parser::logParserError(std::string message)
+void Parser::expectTokenOfType(LexerTokenType type)
+{
+	if (!currentTokenIsOfType(type))
+	{
+		std::string message = "Unexpected token. Expected ";
+		message += tokenTypeToString.find(type)->second;
+		message +=", but received ";
+		message += tokenTypeToString.find(tokens[currPosition]->type)->second;
+		message += ".";
+		logError(message);
+	}
+}
+
+bool Parser::previousTokenIsOfType(LexerTokenType type)
+{
+	return tokens[currPosition - 1]->type == type;
+}
+
+bool Parser::currentTokenIsOfType(LexerTokenType type)
+{
+	return tokens[currPosition]->type == type;
+}
+
+void Parser::logError(std::string message)
 {
 	std::string error("Error in parser at position ");
 

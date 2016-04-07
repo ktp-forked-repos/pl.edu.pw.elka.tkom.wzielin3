@@ -46,11 +46,14 @@ std::vector<LexerToken*> Lexer::scan()
 
 bool Lexer::scanForOpenTag()
 {
-	if (toParse[currPosition] == OPEN_TAG
-			&& (currPosition + 1 >= toParse.size()
-					|| toParse[currPosition + 1] != FORWARD_SLASH))
+	if (toParse[currPosition] == OPEN_TAG)
 	{
-		currPosition += 2;
+		if (currPosition + 1 < toParse.size()
+				&& toParse[currPosition + 1] != FORWARD_SLASH)
+		{
+			currPosition++;
+		}
+		currPosition++;
 		tokens.push_back(new LexerToken(LexerTokenType::OPEN_TAG));
 		return true;
 	}
@@ -165,7 +168,7 @@ bool Lexer::scanForBackwardSlash()
 
 bool Lexer::scanForForwardSlash()
 {
-	if(toParse[currPosition] == FORWARD_SLASH)
+	if (toParse[currPosition] == FORWARD_SLASH)
 	{
 		currPosition++;
 		tokens.push_back(new LexerToken(LexerTokenType::FORWARD_SLASH));

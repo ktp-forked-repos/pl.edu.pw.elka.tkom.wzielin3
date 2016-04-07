@@ -9,6 +9,7 @@
 #define LEXER_LEXERTOKEN_H_
 
 #include<string>
+#include<map>
 
 enum LexerTokenType
 {
@@ -31,8 +32,12 @@ public:
 	LexerToken(LexerTokenType type, std::string textContent);
 	virtual ~LexerToken();
 
+
 	LexerTokenType type;
+	std::string getText();
+private:
 	std::string textContent;
+	static const std::map<LexerTokenType, std::string> tokenTypeToString;
 };
 
 #endif /* LEXER_LEXERTOKEN_H_ */
