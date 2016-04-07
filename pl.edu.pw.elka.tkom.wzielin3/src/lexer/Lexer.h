@@ -36,27 +36,39 @@ private:
 	static const char QUOTATION_MARK = '"';
 	static const char EQUAL_SIGN = '=';
 
-	static const std::set<char> specialCharacters;
-
 	unsigned int currPosition;
 	std::string toParse;
 	std::vector<LexerToken*> tokens;
 
+	void scanQuoted();
+
+	void scanForQuotedWord();
+	void scanForWord();
+	void scanForOpenTag();
+	void scanForCloseTag();
+	void scanForOpenSlashedTag();
+	void scanForClosedSlashedTag();
+	void scanForQuoteSign();
+	void scanForEqualSign();
+	void scanForWhitespace();
+
+	bool isNextQuotedWord();
+	bool isNextWord();
+	bool isNextOpenTag();
+	bool isNextCloseTag();
+	bool isNextOpenSlashedTag();
+	bool isNextClosedSlashedTag();
+	bool isNextQuoteSign();
+	bool isNextEqualSign();
+	bool isNextWhitespace();
+
+	void saveWordFromPosition(unsigned int wordStart);
+
 	/**
-	 * Method that adds OPEN_TAG token to collection of tokens if found one and increments current position.
-	 * @return true if found token.
+	 * Registers lexer error with logger used in application which then terminates execution of program.
+	 * @parser message to be registered.
 	 */
-	bool scanForOpenTag();
-	bool scanForCloseTag();
-	bool scanForOpenSlashedTag();
-	bool scanForClosedSlashedTag();
-	bool scanForWord();
-	bool scanForQuoteSign();
-	bool scanForQuotedWord();
-	bool scanForEqualSign();
-	bool scanForWhitespace();
-	bool scanForBackwardSlash();
-	bool scanForForwardSlash();
+	void logError(std::string message);
 };
 
 #endif /* LEXER_LEXER_H_ */

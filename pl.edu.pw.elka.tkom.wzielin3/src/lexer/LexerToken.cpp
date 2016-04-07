@@ -28,7 +28,6 @@ const std::map<LexerTokenType, std::string> LexerToken::tokenTypeToString =
 { LexerTokenType::CLOSE_TAG, ">" },
 { LexerTokenType::OPEN_SLASHED_TAG, "</" },
 { LexerTokenType::CLOSE_SLASHED_TAG, "/>" },
-{ LexerTokenType::BACKWARD_SLASH, "\\" },
 { LexerTokenType::FORWARD_SLASH, "/" },
 { LexerTokenType::WORD, "" },
 { LexerTokenType::QUOTE_SIGN, "\"" },

@@ -120,7 +120,7 @@ HTMLElement* HTMLInterpreter::getTableRoot(HTMLElement* startFrom)
 			std::vector<std::string> values = attr->values;
 			for (unsigned int j = 0; j < values.size(); ++j)
 			{
-				std::string value = values[i];
+				std::string value = values[j];
 				if (value == "maintable")
 				{
 					if (startFrom->innerElements.size() > 0 && startFrom->innerElements[0]->name == "tbody")

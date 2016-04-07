@@ -27,7 +27,7 @@ const std::set<std::string> Parser::selfClosingElements =
 		"keygen", "link", "meta", "param", "source", "track", "wbr" };
 
 const std::set<std::string> Parser::ignoredElements =
-{ "!DOCTYPE", "DOCTYPE" };
+{ "!DOCTYPE" };
 
 const std::map<LexerTokenType, std::string> Parser::tokenTypeToString =
 {
@@ -35,8 +35,6 @@ const std::map<LexerTokenType, std::string> Parser::tokenTypeToString =
 { LexerTokenType::CLOSE_TAG, ">" },
 { LexerTokenType::OPEN_SLASHED_TAG, "</" },
 { LexerTokenType::CLOSE_SLASHED_TAG, "/>" },
-{ LexerTokenType::BACKWARD_SLASH, "\\" },
-{ LexerTokenType::FORWARD_SLASH, "/" },
 { LexerTokenType::WORD, "WORD" },
 { LexerTokenType::QUOTE_SIGN, "\"" },
 { LexerTokenType::EQUAL_SIGN, "=" },
@@ -102,6 +100,7 @@ void Parser::parseText(HTMLElement* element)
 			&& !currentTokenIsOfType(OPEN_TAG))
 	{
 		element->textContent += tokens[currPosition]->getText();
+		currPosition++;
 	}
 }
 
@@ -117,36 +116,17 @@ void Parser::parseAttribute(HTMLAttribute* attr, std::string currentElementName)
 		parseWhiteSpaces();
 		expectTokenOfType(LexerTokenType::QUOTE_SIGN);
 		currPosition++;
-		while (currentTokenIsOfType(LexerTokenType::QUOTE_SIGN))
-			;
+		while (!currentTokenIsOfType(LexerTokenType::QUOTE_SIGN))
 		{
 			parseWhiteSpaces();
-			std::string value = parseAttributeValue();
+			expectTokenOfType(LexerTokenType::WORD);
+			std::string value = tokens[currPosition]->getText();
 			attr->values.push_back(value);
+			currPosition++;
 			parseWhiteSpaces();
 		}
 		currPosition++;
 	}
-}
-
-std::string Parser::parseAttributeValue()
-{
-	parseWhiteSpaces();
-	expectMoreTokens();
-	std::string result = "";
-	while (currPosition < tokens.size()
-			&& !currentTokenIsOfType(LexerTokenType::WHITESPACE)
-			&& (!currentTokenIsOfType(LexerTokenType::QUOTE_SIGN)
-					|| previousTokenIsOfType(LexerTokenType::BACKWARD_SLASH)))
-	{
-		currPosition++;
-		if (!currentTokenIsOfType(LexerTokenType::BACKWARD_SLASH)
-				|| previousTokenIsOfType(LexerTokenType::BACKWARD_SLASH))
-		{
-			result += tokens[currPosition]->getText();
-		}
-	}
-	return result;
 }
 
 void Parser::parseWhiteSpaces()

@@ -64,14 +64,6 @@ private:
 	void parseAttribute(HTMLAttribute* attr, std::string currentElementName);
 
 	/**
-	 * Method that extracts a word from current position. Should be used for words that
-	 * are in quoatation marks, i.e. attribute values.
-	 * @returns std::string that begins in current position and
-	 * ends with either a whitespace or a quotation mark.
-	 */
-	std::string parseAttributeValue();
-
-	/**
 	 * Method used for skipping whitespaces. Increments current position as long as
 	 * current positiong is a whitespace.
 	 */
