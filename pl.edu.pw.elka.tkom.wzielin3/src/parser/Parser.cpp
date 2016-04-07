@@ -68,6 +68,7 @@ unsigned int Parser::parse()
 void Parser::parseElement(HTMLElement* element)
 {
 	currPosition++;
+	parseWhiteSpaces();
 	expectTokenOfType(LexerTokenType::WORD);
 	element->name = tokens[currPosition]->getText();
 	parseWhiteSpaces();
@@ -116,17 +117,27 @@ void Parser::parseAttribute(HTMLAttribute* attr, std::string currentElementName)
 		parseWhiteSpaces();
 		expectTokenOfType(LexerTokenType::QUOTE_SIGN);
 		currPosition++;
+		parseWhiteSpaces();
 		while (!currentTokenIsOfType(LexerTokenType::QUOTE_SIGN))
 		{
-			parseWhiteSpaces();
-			expectTokenOfType(LexerTokenType::WORD);
-			std::string value = tokens[currPosition]->getText();
+			std::string value = parseQuotedWord();
 			attr->values.push_back(value);
-			currPosition++;
 			parseWhiteSpaces();
 		}
 		currPosition++;
 	}
+}
+
+std::string Parser::parseQuotedWord()
+{
+	std::string result;
+	while(!currentTokenIsOfType(LexerTokenType::QUOTE_SIGN) &&
+			!currentTokenIsOfType(LexerTokenType::WHITESPACE))
+	{
+		result += tokens[currPosition]->getText();
+		currPosition++;
+	}
+	return result;
 }
 
 void Parser::parseWhiteSpaces()

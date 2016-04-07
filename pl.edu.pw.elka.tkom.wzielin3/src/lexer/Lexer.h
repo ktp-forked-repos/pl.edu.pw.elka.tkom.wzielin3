@@ -40,9 +40,6 @@ private:
 	std::string toParse;
 	std::vector<LexerToken*> tokens;
 
-	void scanQuoted();
-
-	void scanForQuotedWord();
 	void scanForWord();
 	void scanForOpenTag();
 	void scanForCloseTag();
@@ -52,7 +49,6 @@ private:
 	void scanForEqualSign();
 	void scanForWhitespace();
 
-	bool isNextQuotedWord();
 	bool isNextWord();
 	bool isNextOpenTag();
 	bool isNextCloseTag();
@@ -61,8 +57,6 @@ private:
 	bool isNextQuoteSign();
 	bool isNextEqualSign();
 	bool isNextWhitespace();
-
-	void saveWordFromPosition(unsigned int wordStart);
 
 	/**
 	 * Registers lexer error with logger used in application which then terminates execution of program.

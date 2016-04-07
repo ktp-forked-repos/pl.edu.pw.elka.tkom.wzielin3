@@ -70,6 +70,12 @@ private:
 	void parseWhiteSpaces();
 
 	/**
+	 * Method that parses word from current position given that the wors is quoted.
+	 * @returns parsed word
+	 */
+	std::string parseQuotedWord();
+
+	/**
 	 * Method that skips all characters until it reaches > character. It will increment current position of parser
 	 * until it reaches > character. Consider using it when IsNextCloseOpenedElement returns true or when you
 	 * want to ignore attributes stored in current element.

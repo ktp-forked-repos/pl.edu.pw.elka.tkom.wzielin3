@@ -27,11 +27,7 @@ std::vector<LexerToken*> Lexer::scan()
 {
 	while (currPosition < toParse.size())
 	{
-		int previousPosition = currPosition;
-		if (isNextQuoteSign())
-		{
-			scanQuoted();
-		}
+		unsigned int previousPosition = currPosition;
 		scanForOpenTag();
 		scanForCloseTag();
 		scanForOpenSlashedTag();
@@ -46,47 +42,6 @@ std::vector<LexerToken*> Lexer::scan()
 		}
 	}
 	return tokens;
-}
-
-void Lexer::scanQuoted()
-{
-	scanForQuoteSign();
-	while (currPosition < toParse.size() && !isNextQuoteSign())
-	{
-		int previousPosition = currPosition;
-		scanForWhitespace();
-		scanForQuotedWord();
-		if (previousPosition == currPosition)
-		{
-			logError("Couldn't resolve symbol. Lexer stuck.");
-		}
-	}
-	scanForQuoteSign();
-}
-
-void Lexer::saveWordFromPosition(unsigned int wordStart)
-{
-	if (wordStart != currPosition)
-	{
-		std::string result = toParse.substr(wordStart,
-				currPosition - wordStart);
-		tokens.push_back(new LexerToken(LexerTokenType::WORD, result));
-	}
-}
-
-bool Lexer::isNextQuotedWord()
-{
-	return !isNextQuoteSign();
-}
-
-void Lexer::scanForQuotedWord()
-{
-	unsigned int startPosition = currPosition;
-	while (currPosition < toParse.size() && isNextQuotedWord())
-	{
-		currPosition++;
-	}
-	saveWordFromPosition(startPosition);
 }
 
 bool Lexer::isNextWord()
@@ -104,7 +59,12 @@ void Lexer::scanForWord()
 	{
 		currPosition++;
 	}
-	saveWordFromPosition(startPosition);
+	if (startPosition != currPosition)
+	{
+		std::string result = toParse.substr(startPosition,
+				currPosition - startPosition);
+		tokens.push_back(new LexerToken(LexerTokenType::WORD, result));
+	}
 }
 
 bool Lexer::isNextOpenTag()
