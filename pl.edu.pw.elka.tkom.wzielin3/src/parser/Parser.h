@@ -74,12 +74,6 @@ private:
 	void parseAttribute(HTMLAttribute* attr, std::string currentElementName);
 
 	/**
-	 * Method used for skipping whitespaces. Increments current position as long as
-	 * current positiong is a whitespace.
-	 */
-	void parseWhiteSpace();
-
-	/**
 	 * Method that parses word from current position given that the wors is quoted.
 	 * @returns parsed word
 	 */
@@ -113,9 +107,14 @@ private:
 	 */
 	bool TryOpenCurrentElement(std::string elementName);
 
-	void expectMoreTokens();
+	void expectMoveToNextToken();
+	bool expectTokensAvailable(unsigned count = 1);
 	void expectTokenOfType(LexerTokenType type);
-	bool currentTokenIsOfType(LexerTokenType type);
+
+	void moveToNextToken();
+	bool tokensAvailable(unsigned count = 1);
+	LexerToken* currToken();
+	LexerToken* nextToken();
 
 	/**
 	 * Registers parser error with logger used in application which then terminates execution of program.

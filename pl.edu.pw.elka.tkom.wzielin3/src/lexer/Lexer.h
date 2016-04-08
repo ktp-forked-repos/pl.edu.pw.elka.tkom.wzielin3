@@ -39,15 +39,23 @@ private:
 	std::string toParse;
 	std::vector<LexerToken*> tokens;
 
-	void scanForWord();
-	void scanForOpenTag();
-	void scanForCloseTag();
-	void scanForOpenSlashedTag();
-	void scanForClosedSlashedTag();
-	void scanForQuoteSign();
-	void scanForEqualSign();
-	void scanForWhitespace();
+	void scanText();
+	void scanTag();
+	void scanQuotation();
 
+	void saveWordFrom(unsigned int startPosition);
+
+	bool scanForWordQuoted();
+	bool scanForWord();
+	bool scanForOpenTag();
+	bool scanForCloseTag();
+	bool scanForOpenSlashedTag();
+	bool scanForClosedSlashedTag();
+	bool scanForQuoteSign();
+	bool scanForEqualSign();
+	bool scanForWhitespace();
+
+	bool isNextWordQuoted();
 	bool isNextWord();
 	bool isNextOpenTag();
 	bool isNextCloseTag();

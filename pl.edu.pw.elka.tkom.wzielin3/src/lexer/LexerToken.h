@@ -17,18 +17,15 @@ enum LexerTokenType
 	CLOSE_TAG,
 	OPEN_SLASHED_TAG,
 	CLOSE_SLASHED_TAG,
-	FORWARD_SLASH,
 	WORD,
 	QUOTE_SIGN,
-	EQUAL_SIGN,
-	WHITESPACE
+	EQUAL_SIGN
 };
 
 class LexerToken
 {
 public:
-	LexerToken(LexerTokenType type);
-	LexerToken(LexerTokenType type, std::string textContent);
+	LexerToken(LexerTokenType type, std::string textContent = "");
 	virtual ~LexerToken();
 
 
