@@ -32,9 +32,10 @@ std::vector<LexerToken*> Lexer::scan()
 void Lexer::scanText()
 {
 	unsigned int startPosition = currPosition;
+	scanForWhitespace();
 	while (currPosition < toParse.size())
 	{
-		if (!isNextOpenTag() && !isNextClosedSlashedTag())
+		if (!isNextOpenTag() && !isNextOpenSlashedTag())
 		{
 			currPosition++;
 		}
@@ -42,6 +43,7 @@ void Lexer::scanText()
 		{
 			saveWordFrom(startPosition);
 			scanTag();
+			scanForWhitespace();
 			startPosition = currPosition;
 		}
 	}

@@ -6,7 +6,7 @@
  */
 
 #include "Parser.h"
-
+#include<iostream>
 #include <sstream>
 #include "../log/ConsoleLog.h"
 
@@ -83,7 +83,17 @@ unsigned int Parser::parseDocument()
 {
 	while (tokensAvailable())
 	{
-		if (currToken()->type == LexerTokenType::OPEN_SLASHED_TAG)
+		if (currToken()->type != LexerTokenType::OPEN_TAG
+				&& currToken()->type != LexerTokenType::OPEN_SLASHED_TAG)
+		{
+			expectTokenOfType(LexerTokenType::WORD);
+			HTMLElement* element = new HTMLElement();
+			element->textContent = currToken()->getText();
+			root->innerElements.push_back(element);
+			moveToNextToken();
+		}
+		if (tokensAvailable()
+				&& currToken()->type == LexerTokenType::OPEN_SLASHED_TAG)
 		{
 			expectMoveToNextToken();
 			expectTokenOfType(LexerTokenType::WORD);
@@ -91,13 +101,6 @@ unsigned int Parser::parseDocument()
 			expectTokenOfType(LexerTokenType::CLOSE_TAG);
 			moveToNextToken();
 			return currPosition;
-		}
-		if (currToken()->type != LexerTokenType::OPEN_TAG)
-		{
-			expectTokenOfType(LexerTokenType::WORD);
-			HTMLElement* element = new HTMLElement();
-			element->textContent = currToken()->getText();
-			root->innerElements.push_back(element);
 		}
 		if (tokensAvailable())
 		{
