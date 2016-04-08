@@ -32,6 +32,7 @@ std::vector<LexerToken*> Lexer::scan()
 		scanForCloseTag();
 		scanForOpenSlashedTag();
 		scanForClosedSlashedTag();
+		scanForQuoteSign();
 		scanForEqualSign();
 		scanForWhitespace();
 		scanForWord();

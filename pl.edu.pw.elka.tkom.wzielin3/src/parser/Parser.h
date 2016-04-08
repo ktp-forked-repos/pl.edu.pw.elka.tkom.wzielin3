@@ -26,18 +26,28 @@ public:
 	virtual ~Parser();
 
 	/**
-	 * Method that starts parsing process.
-	 * @returns position in the string where parsing was finished and from which may be continued outside this parser.
+	 * Method that carries out parsing process.
 	 */
-	unsigned int parse();
+	void parse();
 private:
 	HTMLElement* root;
 	std::vector<LexerToken*> tokens;
 	unsigned int currPosition;
 
 	static const std::set<std::string> selfClosingElements;
-	static const std::set<std::string> ignoredElements;
 	static const std::map<LexerTokenType, std::string> tokenTypeToString;
+
+	/**
+	 * Method that skips doctype declaration at the begining of document.
+	 */
+	void parseDoctypeDeclaration();
+
+	/**
+	 * Main method that handles parsing of elements, text, whitespaces.
+	 * Parses from root of document excluding !DOCTYPE declaration.
+	 * @returns position in the string where parsing was finished and from which may be continued outside this parser.
+	 */
+	unsigned int parseDocument();
 
 	/**
 	 * Method that extracts HTMLElement, that may have nested elements, from current position.
@@ -67,7 +77,7 @@ private:
 	 * Method used for skipping whitespaces. Increments current position as long as
 	 * current positiong is a whitespace.
 	 */
-	void parseWhiteSpaces();
+	void parseWhiteSpace();
 
 	/**
 	 * Method that parses word from current position given that the wors is quoted.
@@ -105,7 +115,6 @@ private:
 
 	void expectMoreTokens();
 	void expectTokenOfType(LexerTokenType type);
-	bool previousTokenIsOfType(LexerTokenType type);
 	bool currentTokenIsOfType(LexerTokenType type);
 
 	/**

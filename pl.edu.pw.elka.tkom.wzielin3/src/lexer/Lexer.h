@@ -32,7 +32,6 @@ private:
 	static const char OPEN_TAG = '<';
 	static const char CLOSE_TAG = '>';
 	static const char FORWARD_SLASH = '/';
-	static const char BACKWARD_SLASH = '\\';
 	static const char QUOTATION_MARK = '"';
 	static const char EQUAL_SIGN = '=';
 
