@@ -22,26 +22,23 @@ public:
 	Lexer(std::string toParse);
 	virtual ~Lexer();
 
-	/**
-	 * Method used for retrieving lexical tokens from html input.
-	 * @returns collection of ordered lexical tokens
-	 */
-	std::vector<LexerToken*> scan();
+	std::vector<LexerToken*> scanText();
+	std::vector<LexerToken*> scanTag();
+	std::vector<LexerToken*> scanQuotation();
+	std::vector<LexerToken*> scanScript();
+	bool isFinished();
 
 private:
 	static const char OPEN_TAG = '<';
 	static const char CLOSE_TAG = '>';
 	static const char FORWARD_SLASH = '/';
+	static const char ESCAPE_SIGN = '\\';
 	static const char QUOTATION_MARK = '"';
 	static const char EQUAL_SIGN = '=';
 
 	unsigned int currPosition;
 	std::string toParse;
 	std::vector<LexerToken*> tokens;
-
-	void scanText();
-	void scanTag();
-	void scanQuotation();
 
 	void saveWordFrom(unsigned int startPosition);
 
@@ -64,12 +61,14 @@ private:
 	bool isNextQuoteSign();
 	bool isNextEqualSign();
 	bool isNextWhitespace();
+	bool isNextEscapeSign();
 
 	/**
 	 * Registers lexer error with logger used in application which then terminates execution of program.
 	 * @parser message to be registered.
 	 */
 	void logError(std::string message);
+	void deleteCurrentTokens();
 };
 
 #endif /* LEXER_LEXER_H_ */

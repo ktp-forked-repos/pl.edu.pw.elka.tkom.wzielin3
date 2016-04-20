@@ -23,10 +23,9 @@ int main(int argc, char** argv)
 	std::string toParse = http.getHtml(configuration.webSiteUrl);
 
 	Lexer lexer(toParse);
-	std::vector<LexerToken*> tokens = lexer.scan();
 
 	HTMLElement root;
-	Parser parser(tokens, 0, &root);
+	Parser parser(&lexer, &root);
 	parser.parse();
 
 	HTMLInterpreter interpreter(&root);

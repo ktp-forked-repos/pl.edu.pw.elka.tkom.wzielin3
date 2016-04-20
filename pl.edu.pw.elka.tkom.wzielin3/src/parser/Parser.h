@@ -12,17 +12,16 @@
 #include<set>
 #include<string>
 #include"HTMLElement.h"
-#include"../lexer/LexerToken.h"
+#include"../lexer/Lexer.h"
 
 class Parser
 {
 public:
 	/**
-	 * @param tokens to be parsed
-	 * @param currentPoisition index in the toParse string from which parse should start
+	 * @param lexer to be used
 	 * @param root HTMLElement to which parser will append parsed elements
 	 */
-	Parser(std::vector<LexerToken*> tokens, int currentPosition, HTMLElement* root);
+	Parser(Lexer* lexer, HTMLElement* root);
 	virtual ~Parser();
 
 	/**
@@ -32,6 +31,7 @@ public:
 private:
 	HTMLElement* root;
 	std::vector<LexerToken*> tokens;
+	Lexer* lexer;
 	unsigned int currPosition;
 
 	static const std::set<std::string> selfClosingElements;
@@ -57,6 +57,7 @@ private:
 	 */
 	void parseElement(HTMLElement* element);
 
+	void parseScript(HTMLElement* element);
 	/**
 	 * Method that extracts HTMLElement, that has no nestes elements, from current position.
 	 * Shoudl be used only for plain text in the document.
@@ -115,6 +116,11 @@ private:
 	bool tokensAvailable(unsigned count = 1);
 	LexerToken* currToken();
 	LexerToken* nextToken();
+
+	void lexerScanText();
+	void lexerScanTag();
+	void lexerScanQuotation();
+	void lexerScanScript();
 
 	/**
 	 * Registers parser error with logger used in application which then terminates execution of program.

@@ -10,11 +10,10 @@
 #include <sstream>
 #include "../log/ConsoleLog.h"
 
-Parser::Parser(std::vector<LexerToken*> tokens, int currentPosition,
-		HTMLElement* root)
+Parser::Parser(Lexer* lexer, HTMLElement* root)
 {
-	this->tokens = tokens;
-	this->currPosition = currentPosition;
+	this->lexer = lexer;
+	this->currPosition = 0;
 	this->root = root;
 }
 
@@ -24,7 +23,7 @@ Parser::~Parser()
 
 const std::set<std::string> Parser::selfClosingElements =
 { "area", "base", "br", "col", "command", "embed", "hr", "img", "input",
-		"keygen", "link", "meta", "param", "source", "track", "wbr" };
+		"keygen", "link", "meta", "param", "source", "track", "wbr", "!DOCTYPE" };
 
 const std::map<LexerTokenType, std::string> Parser::tokenTypeToString =
 {
@@ -44,11 +43,15 @@ void Parser::parse()
 
 void Parser::parseDoctypeDeclaration()
 {
-	if (tokensAvailable(2) && currToken()->type == LexerTokenType::OPEN_TAG
-			&& nextToken()->type == LexerTokenType::WORD
-			&& nextToken()->getText() == "!DOCTYPE")
+	lexerScanText();
+	if (currToken()->type != LexerTokenType::OPEN_TAG)
 	{
-		moveToNextToken();
+		return;
+	}
+	lexerScanTag();
+	if (currToken()->type == LexerTokenType::WORD
+			&& currToken()->getText() == "!DOCTYPE")
+	{
 		moveToNextToken();
 		expectTokensAvailable();
 		while (currToken()->type != LexerTokenType::CLOSE_TAG)
@@ -59,13 +62,13 @@ void Parser::parseDoctypeDeclaration()
 			}
 			else if (currToken()->type == LexerTokenType::QUOTE_SIGN)
 			{
-				expectMoveToNextToken();
+				lexerScanQuotation();
 				while (currToken()->type == LexerTokenType::WORD)
 				{
 					expectMoveToNextToken();
 				}
 				expectTokenOfType(LexerTokenType::QUOTE_SIGN);
-				expectMoveToNextToken();
+				lexerScanTag();
 			}
 			else
 			{
@@ -75,12 +78,12 @@ void Parser::parseDoctypeDeclaration()
 								+ " in !DOCTYPE declaration.");
 			}
 		}
-		moveToNextToken();
 	}
 }
 
 unsigned int Parser::parseDocument()
 {
+	lexerScanText();
 	while (tokensAvailable())
 	{
 		if (currToken()->type != LexerTokenType::OPEN_TAG
@@ -95,11 +98,10 @@ unsigned int Parser::parseDocument()
 		if (tokensAvailable()
 				&& currToken()->type == LexerTokenType::OPEN_SLASHED_TAG)
 		{
-			expectMoveToNextToken();
+			lexerScanTag();
 			expectTokenOfType(LexerTokenType::WORD);
 			expectMoveToNextToken();
 			expectTokenOfType(LexerTokenType::CLOSE_TAG);
-			moveToNextToken();
 			return currPosition;
 		}
 		if (tokensAvailable())
@@ -108,6 +110,7 @@ unsigned int Parser::parseDocument()
 			HTMLElement* element = new HTMLElement();
 			parseElement(element);
 			root->innerElements.push_back(element);
+			lexerScanText();
 		}
 	}
 	return currPosition;
@@ -115,10 +118,14 @@ unsigned int Parser::parseDocument()
 
 void Parser::parseElement(HTMLElement* element)
 {
-	expectTokenOfType(LexerTokenType::OPEN_TAG);
-	expectMoveToNextToken();
+	lexerScanTag();
 	expectTokenOfType(LexerTokenType::WORD);
 	element->name = currToken()->getText();
+	if(element->name == "script")
+	{
+		parseScript(element);
+		return;
+	}
 	expectMoveToNextToken();
 	while (true)
 	{
@@ -129,13 +136,36 @@ void Parser::parseElement(HTMLElement* element)
 
 		if (TryOpenCurrentElement(element->name))
 		{
-			Parser innerParser(tokens, currPosition, element);
-			currPosition = innerParser.parseDocument();
+			Parser innerParser(lexer, element);
+			innerParser.parseDocument();
 			return;
 		}
 		HTMLAttribute* attr = new HTMLAttribute();
 		parseAttribute(attr, element->name);
 		element->attributes.push_back(attr);
+		lexerScanTag();
+	}
+}
+
+
+void Parser::parseScript(HTMLElement* element)
+{
+	expectMoveToNextToken();
+	while (true)
+	{
+		if (TryCloseCurrentElement(element->name))
+		{
+			return;
+		}
+
+		if (TryOpenCurrentElement(element->name))
+		{
+			lexerScanScript();
+		}
+		HTMLAttribute* attr = new HTMLAttribute();
+		parseAttribute(attr, element->name);
+		element->attributes.push_back(attr);
+		lexerScanTag();
 	}
 }
 
@@ -148,14 +178,14 @@ void Parser::parseAttribute(HTMLAttribute* attr, std::string currentElementName)
 	{
 		expectMoveToNextToken();
 		expectTokenOfType(LexerTokenType::QUOTE_SIGN);
-		expectMoveToNextToken();
+		lexerScanQuotation();
 		while (currToken()->type != LexerTokenType::QUOTE_SIGN)
 		{
 			expectTokenOfType(LexerTokenType::WORD);
+			std::string s = currToken()->getText();
 			attr->values.push_back(currToken()->getText());
 			expectMoveToNextToken();
 		}
-		expectMoveToNextToken();
 	}
 }
 
@@ -166,7 +196,6 @@ bool Parser::TryCloseCurrentElement(std::string elementName)
 					&& selfClosingElements.find(elementName)
 							!= selfClosingElements.end()))
 	{
-		moveToNextToken();
 		return true;
 	}
 	return false;
@@ -178,7 +207,6 @@ bool Parser::TryOpenCurrentElement(std::string elementName)
 			&& selfClosingElements.find(elementName)
 					== selfClosingElements.end())
 	{
-		expectMoveToNextToken();
 		return true;
 	}
 	return false;
@@ -233,14 +261,34 @@ LexerToken* Parser::nextToken()
 	return tokens[currPosition + 1];
 }
 
+void Parser::lexerScanText()
+{
+	tokens = lexer->scanText();
+	currPosition = 0;
+}
+
+void Parser::lexerScanTag()
+{
+	tokens = lexer->scanTag();
+	currPosition = 0;
+}
+
+void Parser::lexerScanQuotation()
+{
+	tokens = lexer->scanQuotation();
+	currPosition = 0;
+}
+
+void Parser::lexerScanScript()
+{
+	tokens = lexer->scanScript();
+	currPosition = 0;
+}
+
 void Parser::logError(std::string message)
 {
-	std::string error("Error in parser at position ");
+	std::string error("Error in parser");
 
-	std::stringstream ss;
-	ss << currPosition;
-
-	error += ss.str();
 	error += ". ";
 	error += message;
 	ConsoleLog log;

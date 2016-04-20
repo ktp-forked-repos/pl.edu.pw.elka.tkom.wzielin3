@@ -16,6 +16,11 @@ Lexer::Lexer(std::string toParse) :
 
 Lexer::~Lexer()
 {
+	deleteCurrentTokens();
+}
+
+void Lexer::deleteCurrentTokens()
+{
 	while (!tokens.empty())
 	{
 		delete tokens[tokens.size() - 1];
@@ -23,85 +28,82 @@ Lexer::~Lexer()
 	}
 }
 
-std::vector<LexerToken*> Lexer::scan()
+std::vector<LexerToken*> Lexer::scanText()
 {
-	scanText();
+	deleteCurrentTokens();
+	scanForWhitespace();
+	unsigned int startPosition = currPosition;
+	while (currPosition < toParse.size() && !isNextOpenTag()
+			&& !isNextOpenSlashedTag())
+	{
+		currPosition++;
+	}
+	saveWordFrom(startPosition);
+	scanForOpenSlashedTag() || scanForOpenTag();
 	return tokens;
 }
 
-void Lexer::scanText()
+std::vector<LexerToken*> Lexer::scanTag()
 {
+	deleteCurrentTokens();
 	unsigned int startPosition = currPosition;
-	scanForWhitespace();
-	while (currPosition < toParse.size())
+	while (currPosition < toParse.size() && !isNextQuoteSign()
+			&& !isNextCloseTag() && !isNextClosedSlashedTag())
 	{
-		if (!isNextOpenTag() && !isNextOpenSlashedTag())
+		if (!isNextWhitespace() && !isNextEqualSign())
 		{
 			currPosition++;
 		}
 		else
 		{
 			saveWordFrom(startPosition);
-			scanTag();
-			scanForWhitespace();
-			startPosition = currPosition;
-		}
-	}
-	saveWordFrom(startPosition);
-}
-
-void Lexer::scanTag()
-{
-	scanForOpenTag() || scanForOpenSlashedTag();
-	unsigned int startPosition = currPosition;
-	while (currPosition < toParse.size())
-	{
-		if (!isNextQuoteSign() && !isNextWhitespace() && !isNextEqualSign()
-				&& !isNextCloseTag() && !isNextClosedSlashedTag())
-		{
-			currPosition++;
-		}
-		else
-		{
-			saveWordFrom(startPosition);
-			if (isNextQuoteSign())
-			{
-				scanQuotation();
-			}
 			scanForWhitespace();
 			scanForEqualSign();
-			if (scanForCloseTag() || scanForClosedSlashedTag())
-			{
-				return;
-			}
 			startPosition = currPosition;
 		}
 	}
 	saveWordFrom(startPosition);
+	scanForQuoteSign() || scanForCloseTag() || scanForClosedSlashedTag();
+	return tokens;
 }
 
-void Lexer::scanQuotation()
+std::vector<LexerToken*> Lexer::scanQuotation()
 {
-	scanForQuoteSign();
+	deleteCurrentTokens();
 	unsigned int startPosition = currPosition;
-	while (currPosition < toParse.size())
+	while (currPosition < toParse.size() && !isNextQuoteSign())
 	{
-		if (!isNextQuoteSign() && !isNextWhitespace())
+		if(isNextEscapeSign() && currPosition + 1 < toParse.size())
+		{
+			currPosition += 2;
+		}
+		else if (!isNextWhitespace())
 		{
 			currPosition++;
 		}
 		else
 		{
 			saveWordFrom(startPosition);
-			if (scanForQuoteSign())
-			{
-				return;
-			}
 			scanForWhitespace();
 			startPosition = currPosition;
 		}
 	}
 	saveWordFrom(startPosition);
+	scanForQuoteSign();
+	return tokens;
+}
+
+std::vector<LexerToken*> Lexer::scanScript()
+{
+	deleteCurrentTokens();
+	unsigned int startPosition = currPosition;
+	while(currPosition < toParse.size() && !isNextOpenSlashedTag() && !isNextQuoteSign())
+	{
+		currPosition++;
+	}
+	saveWordFrom(startPosition);
+	scanForQuoteSign() || scanForOpenSlashedTag();
+	return tokens;
 }
 
 void Lexer::saveWordFrom(unsigned int startPosition)
@@ -224,7 +226,7 @@ bool Lexer::scanForEqualSign()
 
 bool Lexer::isNextWhitespace()
 {
-	return isspace(toParse[currPosition]);
+	return isspace((unsigned char)toParse[currPosition]);
 }
 
 bool Lexer::scanForWhitespace()
@@ -238,6 +240,15 @@ bool Lexer::scanForWhitespace()
 		currPosition++;
 	}
 	return true;
+}
+
+bool Lexer::isNextEscapeSign()
+{
+	if(currPosition < toParse.size() && toParse[currPosition] == ESCAPE_SIGN)
+	{
+		return true;
+	}
+	return false;
 }
 
 void Lexer::logError(std::string message)

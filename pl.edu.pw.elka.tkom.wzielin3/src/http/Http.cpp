@@ -49,4 +49,18 @@ std::string Http::getHtml(std::string url)
 	}
 
 	return result;
+
+	/*std::ifstream file;
+	std::string s, line;
+	file >> s;
+	file.open("file.html");
+	if (file.is_open())
+	{
+		while (std::getline(file, line))
+		{
+			s += line;
+		}
+		file.close();
+	}
+	return s;*/
 }
