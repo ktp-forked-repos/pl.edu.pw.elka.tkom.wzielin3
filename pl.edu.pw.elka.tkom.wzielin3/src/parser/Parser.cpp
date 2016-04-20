@@ -126,6 +126,7 @@ void Parser::parseElement(HTMLElement* element)
 		{
 			return;
 		}
+
 		if (TryOpenCurrentElement(element->name))
 		{
 			Parser innerParser(tokens, currPosition, element);
