@@ -23,7 +23,7 @@ public:
 
 	std::vector<LexerToken*> scanText();
 	std::vector<LexerToken*> scanTag();
-	std::vector<LexerToken*> scanQuotation();
+	std::vector<LexerToken*> scanHTMLQuote();
 	std::vector<LexerToken*> scanScript();
 
 private:
@@ -46,26 +46,26 @@ private:
 	 * saves a token WORD which starts at startPosition and finishes at currentPosition (exclusive)
 	 */
 	void saveWordFrom(unsigned int startPosition);
+	/**
+	* Internal use for scanning quotes in JavaScript. Doesn't add new tokens just increments position.
+	*/
+	void scanJSQuote();
 
 	/**
 	 * Methods that check if next characters are specified tokens and if so they scan them and
 	 * create tokens.
 	 */
-	bool scanForWordQuoted();
-	bool scanForWord();
 	bool scanForOpenTag();
 	bool scanForCloseTag();
 	bool scanForOpenSlashedTag();
 	bool scanForClosedSlashedTag();
 	bool scanForQuoteSign();
 	bool scanForEqualSign();
-	bool scanForWhitespace();
+	bool skipWhitespaces();
 
 	/**
 	 * method that check if next characters are specified tokens.
 	 */
-	bool isNextWordQuoted();
-	bool isNextWord();
 	bool isNextOpenTag();
 	bool isNextCloseTag();
 	bool isNextOpenSlashedTag();

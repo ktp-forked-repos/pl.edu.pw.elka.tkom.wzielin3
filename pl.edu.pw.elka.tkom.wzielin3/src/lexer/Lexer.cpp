@@ -31,7 +31,7 @@ void Lexer::deleteCurrentTokens()
 std::vector<LexerToken*> Lexer::scanText()
 {
 	deleteCurrentTokens();
-	scanForWhitespace();
+	skipWhitespaces();
 	unsigned int startPosition = currPosition;
 	while (currPosition < toParse.size() && !isNextOpenTag()
 			&& !isNextOpenSlashedTag())
@@ -57,7 +57,7 @@ std::vector<LexerToken*> Lexer::scanTag()
 		else
 		{
 			saveWordFrom(startPosition);
-			scanForWhitespace() || scanForEqualSign();
+			skipWhitespaces() || scanForEqualSign();
 			startPosition = currPosition;
 		}
 	}
@@ -66,24 +66,20 @@ std::vector<LexerToken*> Lexer::scanTag()
 	return tokens;
 }
 
-std::vector<LexerToken*> Lexer::scanQuotation()
+std::vector<LexerToken*> Lexer::scanHTMLQuote()
 {
 	deleteCurrentTokens();
 	unsigned int startPosition = currPosition;
 	while (currPosition < toParse.size() && !isNextQuoteSign())
 	{
-		if(isNextEscapeSign() && currPosition + 1 < toParse.size())
-		{
-			currPosition += 2;
-		}
-		else if (!isNextWhitespace())
+		if (!isNextWhitespace())
 		{
 			currPosition++;
 		}
 		else
 		{
 			saveWordFrom(startPosition);
-			scanForWhitespace();
+			skipWhitespaces();
 			startPosition = currPosition;
 		}
 	}
@@ -96,13 +92,33 @@ std::vector<LexerToken*> Lexer::scanScript()
 {
 	deleteCurrentTokens();
 	unsigned int startPosition = currPosition;
-	while(currPosition < toParse.size() && !isNextOpenSlashedTag() && !isNextQuoteSign())
+	while(currPosition < toParse.size() && !isNextOpenSlashedTag())
 	{
+		if (isNextQuoteSign())
+		{
+			currPosition++;
+			scanJSQuote();
+		}
 		currPosition++;
 	}
 	saveWordFrom(startPosition);
-	scanForQuoteSign() || scanForOpenSlashedTag();
+	scanForOpenSlashedTag();
 	return tokens;
+}
+
+void Lexer::scanJSQuote()
+{
+	while (currPosition < toParse.size() && !isNextQuoteSign())
+	{
+		if (isNextEscapeSign() && currPosition + 1 < toParse.size())
+		{
+			currPosition += 2;
+		}
+		else
+		{
+			currPosition++;
+		}
+	}
 }
 
 void Lexer::saveWordFrom(unsigned int startPosition)
@@ -228,7 +244,7 @@ bool Lexer::isNextWhitespace()
 	return isspace((unsigned char)toParse[currPosition]);
 }
 
-bool Lexer::scanForWhitespace()
+bool Lexer::skipWhitespaces()
 {
 	if (!isNextWhitespace())
 	{

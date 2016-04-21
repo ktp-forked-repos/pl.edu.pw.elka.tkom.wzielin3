@@ -48,11 +48,12 @@ void Parser::parse()
 void Parser::parseDoctypeDeclaration()
 {
 	lexerScanText();
-	if (currToken()->type != LexerTokenType::OPEN_TAG)
+	if (!tokensAvailable() || currToken()->type != LexerTokenType::OPEN_TAG)
 	{
 		return;
 	}
 	lexerScanTag();
+	expectTokensAvailable();
 	if (currToken()->type == LexerTokenType::WORD
 			&& equal(currToken()->getText(), DOCTYPE_TEXT))
 	{
@@ -65,7 +66,7 @@ void Parser::parseDoctypeDeclaration()
 			}
 			else if (currToken()->type == LexerTokenType::QUOTE_SIGN)
 			{
-				lexerScanQuotation();
+				lexerScanHTMLQuote();
 				while (currToken()->type == LexerTokenType::WORD)
 				{
 					expectMoveToNextToken();
@@ -156,7 +157,6 @@ void Parser::parseElement(HTMLElement* element)
 		HTMLAttribute* attr = new HTMLAttribute();
 		parseAttribute(attr, element->name);
 		element->attributes.push_back(attr);
-		lexerScanTag();
 	}
 }
 
@@ -173,13 +173,21 @@ void Parser::parseScript(HTMLElement* element)
 
 		if (TryOpenCurrentElement(element->name))
 		{
-			lexerScanScript();
+			lexerScanScript(); 
+			expectTokenOfType(LexerTokenType::WORD);
+			HTMLElement* scriptContents = new HTMLElement();
+			scriptContents->textContent = currToken()->getText();
+			element->innerElements.push_back(scriptContents);
+
+			lexerScanTag();
+			expectTokenOfType(LexerTokenType::WORD);
+			expectMoveToNextToken();
+			expectTokenOfType(LexerTokenType::CLOSE_TAG);
 			return;
 		}
 		HTMLAttribute* attr = new HTMLAttribute();
 		parseAttribute(attr, element->name);
 		element->attributes.push_back(attr);
-		lexerScanTag();
 	}
 }
 
@@ -192,13 +200,14 @@ void Parser::parseAttribute(HTMLAttribute* attr, std::string currentElementName)
 	{
 		expectMoveToNextToken();
 		expectTokenOfType(LexerTokenType::QUOTE_SIGN);
-		lexerScanQuotation();
+		lexerScanHTMLQuote();
 		while (currToken()->type != LexerTokenType::QUOTE_SIGN)
 		{
 			expectTokenOfType(LexerTokenType::WORD);
 			attr->values.push_back(currToken()->getText());
 			expectMoveToNextToken();
 		}
+		lexerScanTag();
 	}
 }
 
@@ -247,6 +256,16 @@ void Parser::expectMoveToNextToken()
 	}
 }
 
+bool Parser::expectTokensAvailable()
+{
+	if (tokensAvailable())
+	{
+		return true;
+	}
+	logError("Expected more tokens. Input unexpectedly ended.");
+	return false;
+}
+
 bool Parser::tokensAvailable()
 {
 	return currPosition + 1 <= tokens.size();
@@ -269,9 +288,9 @@ void Parser::lexerScanTag()
 	currPosition = 0;
 }
 
-void Parser::lexerScanQuotation()
+void Parser::lexerScanHTMLQuote()
 {
-	tokens = lexer->scanQuotation();
+	tokens = lexer->scanHTMLQuote();
 	currPosition = 0;
 }
 

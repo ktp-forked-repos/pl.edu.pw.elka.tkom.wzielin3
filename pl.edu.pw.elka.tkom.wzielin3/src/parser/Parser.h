@@ -74,7 +74,8 @@ private:
 	 * Method that extracts Attribute from current position for HTMLElement.
 	 * Use when current position is inside HTMLElement and begins with attribute name.
 	 * Requires tokens in tokens collection. Requires first token to be [WORD] - name of attribute.
-	 * Ends when reached - ["] (unless it's escaped). Doesn't scan tokens for next method.
+	 * Scans tokens for next method to be called.
+	 * Ends when attribute has no values, or values list ends with ".
 	 * @param attr HTMLAttrbiute to which parsed data is saved
 	 * @param currentElementName name of an element that contains extracted attribute
 	 */
@@ -113,8 +114,13 @@ private:
 	void expectTokenOfType(LexerTokenType type);
 
 	/**
-	 * Returns true if tokens are available
-	 */
+	* Returns true if tokens are available
+	*/
+	bool expectTokensAvailable();
+
+	/**
+	* Returns true if tokens are available
+	*/
 	bool tokensAvailable();
 
 	/**
@@ -135,10 +141,11 @@ private:
 	void lexerScanTag();
 
 	/**
-	 * Calls lexer to scan elements, assuming that current context is a quote (either in tag or script).
-	 * Sets current position pointer to 0 and sets new tokens collection.
-	 */
-	void lexerScanQuotation();
+	* Calls lexer to scan elements, assuming that current context is a quote in HTML attribute. 
+	Doesn't allow escaping characters.
+	* Sets current position pointer to 0 and sets new tokens collection.
+	*/
+	void lexerScanHTMLQuote();
 
 	/**
 	 * Calls lexer to scan elements, assuming that current context is inside a script element.
