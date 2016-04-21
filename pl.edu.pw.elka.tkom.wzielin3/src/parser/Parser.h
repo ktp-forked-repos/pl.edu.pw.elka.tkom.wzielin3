@@ -36,56 +36,49 @@ private:
 
 	static const std::set<std::string> selfClosingElements;
 	static const std::map<LexerTokenType, std::string> tokenTypeToString;
+	static const std::string DOCTYPE_TEXT;
+	static const std::string SCRIPT_TEXT;
 
 	/**
-	 * Method that skips doctype declaration at the begining of document.
+	 * Skips !DOCTYPE declaration if exists.
+	 * Scans tags for next method to be called.
+	 * Fetches new set of tokens for itself at the begining.
 	 */
 	void parseDoctypeDeclaration();
 
 	/**
 	 * Main method that handles parsing of elements, text, whitespaces.
 	 * Parses from root of document excluding !DOCTYPE declaration.
-	 * @returns position in the string where parsing was finished and from which may be continued outside this parser.
+	 * When called expects tokens in the tokens collection.
+	 * Ends when no tokens available.
 	 */
-	unsigned int parseDocument();
+	void parseDocument();
 
 	/**
 	 * Method that extracts HTMLElement, that may have nested elements, from current position.
-	 * Requires that a start tag at current position (<).
-	 * If no start tag is found at current position consider using parseText.
+	 * Requires tokens in tokens collection. Requires first token to by [WORD] - current tag's name.
+	 * Ends when reached end of tag. Doesn't scan tokens for next method.
 	 * @param element HTMLElement where parsed data is saved
 	 */
 	void parseElement(HTMLElement* element);
 
-	void parseScript(HTMLElement* element);
 	/**
-	 * Method that extracts HTMLElement, that has no nestes elements, from current position.
-	 * Shoudl be used only for plain text in the document.
-	 * If current position start with start tag (<) use parseElement insteaad.
+	 * Method that extracts HTMLElement, that is a script element, from current position.
+	 * Requires tokens in tokens collection. Requires first token to be [WORD] - text equal to 'script'.
+	 * Ends when reach end of script - [</] tag. Doesn't scan tokens for next method.
 	 * @param element HTMLElement where parsed data is saved
 	 */
-	void parseText(HTMLElement* element);
+	void parseScript(HTMLElement* element);
 
 	/**
 	 * Method that extracts Attribute from current position for HTMLElement.
 	 * Use when current position is inside HTMLElement and begins with attribute name.
+	 * Requires tokens in tokens collection. Requires first token to be [WORD] - name of attribute.
+	 * Ends when reached - ["] (unless it's escaped). Doesn't scan tokens for next method.
 	 * @param attr HTMLAttrbiute to which parsed data is saved
 	 * @param currentElementName name of an element that contains extracted attribute
 	 */
 	void parseAttribute(HTMLAttribute* attr, std::string currentElementName);
-
-	/**
-	 * Method that parses word from current position given that the wors is quoted.
-	 * @returns parsed word
-	 */
-	std::string parseQuotedWord();
-
-	/**
-	 * Method that skips all characters until it reaches > character. It will increment current position of parser
-	 * until it reaches > character. Consider using it when IsNextCloseOpenedElement returns true or when you
-	 * want to ignore attributes stored in current element.
-	 */
-	void CloseElement();
 
 	/**
 	 * When parsing an opening tag of an element it detects whether next characters
@@ -108,18 +101,49 @@ private:
 	 */
 	bool TryOpenCurrentElement(std::string elementName);
 
+	/**
+	 * If no more tokens than current are available reports an error,
+	 * otherwise moves current pointer to next token.
+	 */
 	void expectMoveToNextToken();
-	bool expectTokensAvailable(unsigned count = 1);
+
+	/**
+	 * If token has a different type than specified reports an error.
+	 */
 	void expectTokenOfType(LexerTokenType type);
 
-	void moveToNextToken();
-	bool tokensAvailable(unsigned count = 1);
-	LexerToken* currToken();
-	LexerToken* nextToken();
+	/**
+	 * Returns true if tokens are available
+	 */
+	bool tokensAvailable();
 
+	/**
+	 * Returns current token.
+	 */
+	LexerToken* currToken();
+
+	/**
+	 * Calls lexer to scan elements, assuming that current context is plain text.
+	 * Sets current position pointer to 0 and sets new tokens collection.
+	 */
 	void lexerScanText();
+
+	/**
+	 * Calls lexer to scan elements, assuming that current context is inside a tag.
+	 * Sets current position pointer to 0 and sets new tokens collection.
+	 */
 	void lexerScanTag();
+
+	/**
+	 * Calls lexer to scan elements, assuming that current context is a quote (either in tag or script).
+	 * Sets current position pointer to 0 and sets new tokens collection.
+	 */
 	void lexerScanQuotation();
+
+	/**
+	 * Calls lexer to scan elements, assuming that current context is inside a script element.
+	 * Sets current position pointer to 0 and sets new tokens collection.
+	 */
 	void lexerScanScript();
 
 	/**
@@ -127,5 +151,10 @@ private:
 	 * @parser message to be registered.
 	 */
 	void logError(std::string message);
+
+	/**
+	 * Returns true if strings are equal case insensitive.
+	 */
+	bool equal(std::string a, std::string b);
 };
 #endif /* PARSER_PARSER_H_ */

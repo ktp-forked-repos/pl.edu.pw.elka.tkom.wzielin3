@@ -27,11 +27,12 @@ public:
 	ConfigurationManager(int argc, char** argv);
 	virtual ~ConfigurationManager();
 
+	bool readFromFile = false;
 	bool applyMalwareFilter;
 	bool applyThreatFilter;
 	MalwareType malwareType;
 	ThreatType threaType;
-	std::string webSiteUrl;
+	std::string path;
 private:
 
 	/**

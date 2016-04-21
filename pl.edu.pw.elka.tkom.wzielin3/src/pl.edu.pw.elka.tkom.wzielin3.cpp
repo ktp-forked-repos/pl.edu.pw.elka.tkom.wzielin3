@@ -14,19 +14,20 @@
 #include "log/ConsoleLog.h"
 #include "parser/Parser.h"
 #include "lexer/Lexer.h"
+#include "file/File.h"
 
 int main(int argc, char** argv)
 {
 	ConfigurationManager configuration(argc, argv);
 
-	Http http;
-	std::string toParse = http.getHtml(configuration.webSiteUrl);
+	std::string toParse =
+			configuration.readFromFile ?
+					File().getHtml(configuration.path) :
+					Http().getHtml(configuration.path);
 
 	Lexer lexer(toParse);
-
 	HTMLElement root;
-	Parser parser(&lexer, &root);
-	parser.parse();
+	Parser(&lexer, &root).parse();
 
 	HTMLInterpreter interpreter(&root);
 	std::vector<ResultModel*> allModels = interpreter.interpret();
@@ -43,8 +44,6 @@ int main(int argc, char** argv)
 
 	std::vector<ResultModel*> filteredModels = filter.getModels();
 
-	ConsoleLog log;
-	log.logResults(filteredModels);
-
+	ConsoleLog().logResults(filteredModels);
 	return 0;
 }

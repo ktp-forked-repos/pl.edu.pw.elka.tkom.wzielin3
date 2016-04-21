@@ -27,7 +27,7 @@ const std::map<std::string, MalwareType> ConfigurationManager::stringToMalwareTy
 
 ConfigurationManager::ConfigurationManager(int argc, char** argv)
 {
-	webSiteUrl = "ransomwaretracker.abuse.ch/tracker";
+	path = "ransomwaretracker.abuse.ch/tracker";
 	applyMalwareFilter = false;
 	applyThreatFilter = false;
 
@@ -45,7 +45,12 @@ ConfigurationManager::ConfigurationManager(int argc, char** argv)
 		}
 		else if (command == "-url")
 		{
-			webSiteUrl = value;
+			path = value;
+		}
+		else if(command == "-file")
+		{
+			path = value;
+			readFromFile = true;
 		}
 		else
 		{

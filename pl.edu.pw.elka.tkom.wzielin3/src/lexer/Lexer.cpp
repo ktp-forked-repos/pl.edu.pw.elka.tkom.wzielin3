@@ -57,8 +57,7 @@ std::vector<LexerToken*> Lexer::scanTag()
 		else
 		{
 			saveWordFrom(startPosition);
-			scanForWhitespace();
-			scanForEqualSign();
+			scanForWhitespace() || scanForEqualSign();
 			startPosition = currPosition;
 		}
 	}

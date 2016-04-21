@@ -16,7 +16,6 @@ class Lexer
 {
 public:
 	/**
-	 * Default constructor
 	 * @params toParse html to scan
 	 */
 	Lexer(std::string toParse);
@@ -26,7 +25,6 @@ public:
 	std::vector<LexerToken*> scanTag();
 	std::vector<LexerToken*> scanQuotation();
 	std::vector<LexerToken*> scanScript();
-	bool isFinished();
 
 private:
 	static const char OPEN_TAG = '<';
@@ -38,10 +36,21 @@ private:
 
 	unsigned int currPosition;
 	std::string toParse;
+
+	/**
+	 * tokens generated in current scope
+	 */
 	std::vector<LexerToken*> tokens;
 
+	/**
+	 * saves a token WORD which starts at startPosition and finishes at currentPosition (exclusive)
+	 */
 	void saveWordFrom(unsigned int startPosition);
 
+	/**
+	 * Methods that check if next characters are specified tokens and if so they scan them and
+	 * create tokens.
+	 */
 	bool scanForWordQuoted();
 	bool scanForWord();
 	bool scanForOpenTag();
@@ -52,6 +61,9 @@ private:
 	bool scanForEqualSign();
 	bool scanForWhitespace();
 
+	/**
+	 * method that check if next characters are specified tokens.
+	 */
 	bool isNextWordQuoted();
 	bool isNextWord();
 	bool isNextOpenTag();
@@ -68,6 +80,11 @@ private:
 	 * @parser message to be registered.
 	 */
 	void logError(std::string message);
+
+	/**
+	 * Deletes contents of tokens vector - used when next scope is to be scanned and previous tokens
+	 * are no longer needed.
+	 */
 	void deleteCurrentTokens();
 };
 
