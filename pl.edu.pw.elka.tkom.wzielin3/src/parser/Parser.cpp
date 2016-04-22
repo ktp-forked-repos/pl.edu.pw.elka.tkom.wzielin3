@@ -24,7 +24,7 @@ Parser::~Parser()
 
 const std::set<std::string> Parser::selfClosingElements =
 { "area", "base", "br", "col", "command", "embed", "hr", "img", "input",
-		"keygen", "link", "meta", "param", "source", "track", "wbr", "!DOCTYPE" };
+		"keygen", "link", "meta", "param", "source", "track", "wbr" };
 
 const std::map<LexerTokenType, std::string> Parser::tokenTypeToString =
 {
@@ -36,61 +36,13 @@ const std::map<LexerTokenType, std::string> Parser::tokenTypeToString =
 { LexerTokenType::QUOTE_SIGN, "\"" },
 { LexerTokenType::EQUAL_SIGN, "=" } };
 
-const std::string Parser::DOCTYPE_TEXT = "!DOCTYPE";
 const std::string Parser::SCRIPT_TEXT = "script";
 
 void Parser::parse()
 {
-	parseDoctypeDeclaration();
-	parseDocument();
-}
-
-void Parser::parseDoctypeDeclaration()
-{
+	lexer->skipDoctype();
 	lexerScanText();
-	if (!tokensAvailable() || currToken()->type != LexerTokenType::OPEN_TAG)
-	{
-		return;
-	}
-	lexerScanTag();
-	expectTokensAvailable();
-	if (currToken()->type == LexerTokenType::WORD
-			&& equal(currToken()->getText(), DOCTYPE_TEXT))
-	{
-		expectMoveToNextToken();
-		while (currToken()->type != LexerTokenType::CLOSE_TAG)
-		{
-			if (currToken()->type == LexerTokenType::WORD)
-			{
-				expectMoveToNextToken();
-			}
-			else if (currToken()->type == LexerTokenType::QUOTE_SIGN)
-			{
-				lexerScanHTMLQuote();
-				while (currToken()->type == LexerTokenType::WORD)
-				{
-					expectMoveToNextToken();
-				}
-				expectTokenOfType(LexerTokenType::QUOTE_SIGN);
-				lexerScanTag();
-			}
-			else
-			{
-				logError(
-						"Not expected token of type "
-								+ tokenTypeToString.find(currToken()->type)->second
-								+ " in !DOCTYPE declaration.");
-			}
-		}
-		lexerScanText();
-	}
-	else
-	{
-		HTMLElement* element = new HTMLElement();
-		parseElement(element);
-		root->innerElements.push_back(element);
-		lexerScanText();
-	}
+	parseDocument();
 }
 
 void Parser::parseDocument()
@@ -140,13 +92,8 @@ void Parser::parseElement(HTMLElement* element)
 		return;
 	}
 	expectMoveToNextToken();
-	while (true)
+	while (!TryCloseCurrentElement(element->name))
 	{
-		if (TryCloseCurrentElement(element->name))
-		{
-			return;
-		}
-
 		if (TryOpenCurrentElement(element->name))
 		{
 			Parser innerParser(lexer, element);
@@ -164,13 +111,8 @@ void Parser::parseElement(HTMLElement* element)
 void Parser::parseScript(HTMLElement* element)
 {
 	expectMoveToNextToken();
-	while (true)
+	while (!TryCloseCurrentElement(element->name))
 	{
-		if (TryCloseCurrentElement(element->name))
-		{
-			return;
-		}
-
 		if (TryOpenCurrentElement(element->name))
 		{
 			lexerScanScript(); 
@@ -241,7 +183,7 @@ void Parser::expectTokenOfType(LexerTokenType type)
 		std::string message = "Unexpected token. Expected ";
 		message += tokenTypeToString.find(type)->second;
 		message += ", but received ";
-		message += tokenTypeToString.find(tokens[currPosition]->type)->second;
+		message += tokens[currPosition]->getText();
 		message += ".";
 		logError(message);
 	}

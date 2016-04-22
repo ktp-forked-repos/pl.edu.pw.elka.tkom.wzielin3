@@ -19,6 +19,10 @@ Lexer::~Lexer()
 	deleteCurrentTokens();
 }
 
+const std::string Lexer::OPEN_COMMENT = "<!--";
+const std::string Lexer::CLOSE_COMMENT = "-->";
+const std::string Lexer::DOCTYPE_OPEN = "<!DOCTYPE";
+
 void Lexer::deleteCurrentTokens()
 {
 	while (!tokens.empty())
@@ -31,7 +35,7 @@ void Lexer::deleteCurrentTokens()
 std::vector<LexerToken*> Lexer::scanText()
 {
 	deleteCurrentTokens();
-	skipWhitespaces();
+	skipWhitespacesAndComments();
 	unsigned int startPosition = currPosition;
 	while (currPosition < toParse.size() && !isNextOpenTag()
 			&& !isNextOpenSlashedTag())
@@ -104,6 +108,19 @@ std::vector<LexerToken*> Lexer::scanScript()
 	saveWordFrom(startPosition);
 	scanForOpenSlashedTag();
 	return tokens;
+}
+
+void Lexer::skipDoctype()
+{
+	if(toParse.substr(currPosition, 9) == DOCTYPE_OPEN)
+	{
+		currPosition += 9;
+		while(toParse[currPosition] != CLOSE_TAG)
+		{
+			currPosition++;
+		}
+		currPosition++;
+	}
 }
 
 void Lexer::scanJSQuote()
@@ -244,6 +261,11 @@ bool Lexer::isNextWhitespace()
 	return isspace((unsigned char)toParse[currPosition]);
 }
 
+void Lexer::skipWhitespacesAndComments()
+{
+	while(skipWhitespaces() || skipSingleComment());
+}
+
 bool Lexer::skipWhitespaces()
 {
 	if (!isNextWhitespace())
@@ -255,6 +277,21 @@ bool Lexer::skipWhitespaces()
 		currPosition++;
 	}
 	return true;
+}
+
+bool Lexer::skipSingleComment()
+{
+	if(currPosition  + 3 < toParse.size() && toParse.substr(currPosition, 4) == OPEN_COMMENT)
+	{
+		currPosition += 4;
+		while(currPosition + 2 < toParse.size() && toParse.substr(currPosition, 3) != CLOSE_COMMENT)
+		{
+			currPosition++;
+		}
+		currPosition += 3;
+		return true;
+	}
+	return false;
 }
 
 bool Lexer::isNextEscapeSign()

@@ -25,6 +25,7 @@ public:
 	std::vector<LexerToken*> scanTag();
 	std::vector<LexerToken*> scanHTMLQuote();
 	std::vector<LexerToken*> scanScript();
+	void skipDoctype();
 
 private:
 	static const char OPEN_TAG = '<';
@@ -33,6 +34,9 @@ private:
 	static const char ESCAPE_SIGN = '\\';
 	static const char QUOTATION_MARK = '"';
 	static const char EQUAL_SIGN = '=';
+	static const std::string OPEN_COMMENT;
+	static const std::string CLOSE_COMMENT;
+	static const std::string DOCTYPE_OPEN;
 
 	unsigned int currPosition;
 	std::string toParse;
@@ -61,7 +65,13 @@ private:
 	bool scanForClosedSlashedTag();
 	bool scanForQuoteSign();
 	bool scanForEqualSign();
+
+	/**
+	 * Methods that increment current position and ignore following elements.
+	 */
 	bool skipWhitespaces();
+	bool skipSingleComment();
+	void skipWhitespacesAndComments();
 
 	/**
 	 * method that check if next characters are specified tokens.
