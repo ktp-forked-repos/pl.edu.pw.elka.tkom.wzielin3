@@ -36,3 +36,12 @@ std::string LexerToken::getText()
 	}
 	return tokenTypeToString.find(type)->second;
 }
+bool LexerToken::isValid()
+{
+	return type != LexerTokenType::INVALID;
+}
+
+LexerToken LexerToken::getInvalid()
+{
+	return LexerToken(LexerTokenType::INVALID);
+}

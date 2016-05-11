@@ -10,6 +10,7 @@
 
 #include<vector>
 #include<set>
+#include<list>
 #include"LexerToken.h"
 
 class Lexer
@@ -21,81 +22,54 @@ public:
 	Lexer(std::string toParse);
 	virtual ~Lexer();
 
-	std::vector<LexerToken*> scanText();
-	std::vector<LexerToken*> scanTag();
-	std::vector<LexerToken*> scanHTMLQuote();
-	std::vector<LexerToken*> scanScript();
+	LexerToken scanText();
+	LexerToken scanTag();
+	LexerToken scanHTMLQuote();
+	LexerToken scanScript();
 	void skipDoctype();
+	bool eof();
+	unsigned getCurrentPosition();
 
 private:
-	static const char OPEN_TAG = '<';
-	static const char CLOSE_TAG = '>';
-	static const char FORWARD_SLASH = '/';
-	static const char ESCAPE_SIGN = '\\';
-	static const char QUOTATION_MARK = '"';
-	static const char EQUAL_SIGN = '=';
+	static const std::string OPEN_TAG;
+	static const std::string OPEN_SLASHED_TAG;
+	static const std::string CLOSE_TAG;
+	static const std::string CLOSE_SLASHED_TAG;
+	static const std::string FORWARD_SLASH;
+	static const std::string ESCAPE_SIGN;
+	static const std::string QUOTE_SIGN;
+	static const std::string EQUAL_SIGN;
 	static const std::string OPEN_COMMENT;
 	static const std::string CLOSE_COMMENT;
 	static const std::string DOCTYPE_OPEN;
 
+	static const std::list<std::pair<LexerTokenType, std::string> > textScopeTokens;
+	static const std::list<std::pair<LexerTokenType, std::string> > tagScopeTokens;
+	static const std::list<std::pair<LexerTokenType, std::string> >htmlQuoteScopeTokens;
+	static const std::list<std::pair<LexerTokenType, std::string> >scriptScopeTokens;
+
 	unsigned int currPosition;
 	std::string toParse;
 
-	/**
-	 * tokens generated in current scope
-	 */
-	std::vector<LexerToken*> tokens;
-
-	/**
-	 * saves a token WORD which starts at startPosition and finishes at currentPosition (exclusive)
-	 */
-	void saveWordFrom(unsigned int startPosition);
-	/**
-	* Internal use for scanning quotes in JavaScript. Doesn't add new tokens just increments position.
-	*/
-	void scanJSQuote();
-
-	/**
-	 * Methods that check if next characters are specified tokens and if so they scan them and
-	 * create tokens.
-	 */
-	bool scanForOpenTag();
-	bool scanForCloseTag();
-	bool scanForOpenSlashedTag();
-	bool scanForClosedSlashedTag();
-	bool scanForQuoteSign();
-	bool scanForEqualSign();
-
-	/**
-	 * Methods that increment current position and ignore following elements.
-	 */
-	bool skipWhitespaces();
-	bool skipSingleComment();
-	void skipWhitespacesAndComments();
-
-	/**
-	 * method that check if next characters are specified tokens.
-	 */
-	bool isNextOpenTag();
-	bool isNextCloseTag();
-	bool isNextOpenSlashedTag();
-	bool isNextClosedSlashedTag();
-	bool isNextQuoteSign();
-	bool isNextEqualSign();
+	LexerToken scanScope(std::list<std::pair<LexerTokenType, std::string> > tokens, bool endOnWhitespace);
+	LexerToken scanFor(std::list<std::pair<LexerTokenType, std::string> > tokens);
+	bool scanFor(std::string word);
+	bool isNext(std::list<std::pair<LexerTokenType, std::string> > tokens);
+	bool isNext(std::string word);
 	bool isNextWhitespace();
-	bool isNextEscapeSign();
 
 	/**
-	 * Registers lexer error with logger used in application which then terminates execution of program.
-	 * @parser message to be registered.
+	 * returns a token WORD which starts at startPosition and finishes at currentPosition (exclusive)
 	 */
-	void logError(std::string message);
+	LexerToken getWordFrom(unsigned int startPosition);
 
 	/**
-	 * Deletes contents of tokens vector - used when next scope is to be scanned and previous tokens
-	 * are no longer needed.
+	 * Methods that increment current position if specified elements are present.
 	 */
-	void deleteCurrentTokens();
+	void skipScriptQuote();
+	bool skipWhitespaces();
+	bool skipComment();
+	void skipWhitespacesAndComments();
 };
 
 #endif /* LEXER_LEXER_H_ */

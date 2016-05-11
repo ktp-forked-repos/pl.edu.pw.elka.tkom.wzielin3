@@ -29,14 +29,13 @@ public:
 	 */
 	void parse();
 private:
+	LexerToken token = LexerToken(LexerTokenType::INVALID);
 	HTMLElement* root;
-	std::vector<LexerToken*> tokens;
 	Lexer* lexer;
 	unsigned int currPosition;
 
 	static const std::set<std::string> selfClosingElements;
 	static const std::map<LexerTokenType, std::string> tokenTypeToString;
-	static const std::string DOCTYPE_TEXT;
 	static const std::string SCRIPT_TEXT;
 
 	/**
@@ -103,55 +102,14 @@ private:
 	bool TryOpenCurrentElement(std::string elementName);
 
 	/**
-	 * If no more tokens than current are available reports an error,
-	 * otherwise moves current pointer to next token.
-	 */
-	void expectMoveToNextToken();
-
-	/**
 	 * If token has a different type than specified reports an error.
 	 */
 	void expectTokenOfType(LexerTokenType type);
 
 	/**
-	* Returns true if tokens are available
+	* Returns true if tokens is available
 	*/
-	bool expectTokensAvailable();
-
-	/**
-	* Returns true if tokens are available
-	*/
-	bool tokensAvailable();
-
-	/**
-	 * Returns current token.
-	 */
-	LexerToken* currToken();
-
-	/**
-	 * Calls lexer to scan elements, assuming that current context is plain text.
-	 * Sets current position pointer to 0 and sets new tokens collection.
-	 */
-	void lexerScanText();
-
-	/**
-	 * Calls lexer to scan elements, assuming that current context is inside a tag.
-	 * Sets current position pointer to 0 and sets new tokens collection.
-	 */
-	void lexerScanTag();
-
-	/**
-	* Calls lexer to scan elements, assuming that current context is a quote in HTML attribute. 
-	Doesn't allow escaping characters.
-	* Sets current position pointer to 0 and sets new tokens collection.
-	*/
-	void lexerScanHTMLQuote();
-
-	/**
-	 * Calls lexer to scan elements, assuming that current context is inside a script element.
-	 * Sets current position pointer to 0 and sets new tokens collection.
-	 */
-	void lexerScanScript();
+	bool expectTokenAvailable();
 
 	/**
 	 * Registers parser error with logger used in application which then terminates execution of program.

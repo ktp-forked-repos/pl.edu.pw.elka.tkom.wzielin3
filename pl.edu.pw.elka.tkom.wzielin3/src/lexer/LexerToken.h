@@ -19,7 +19,8 @@ enum LexerTokenType
 	CLOSE_SLASHED_TAG,
 	WORD,
 	QUOTE_SIGN,
-	EQUAL_SIGN
+	EQUAL_SIGN,
+	INVALID
 };
 
 class LexerToken
@@ -28,9 +29,10 @@ public:
 	LexerToken(LexerTokenType type, std::string textContent = "");
 	virtual ~LexerToken();
 
-
 	LexerTokenType type;
 	std::string getText();
+	bool isValid();
+	static LexerToken getInvalid();
 private:
 	std::string textContent;
 	static const std::map<LexerTokenType, std::string> tokenTypeToString;
