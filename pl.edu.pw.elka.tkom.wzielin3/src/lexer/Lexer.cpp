@@ -133,9 +133,9 @@ LexerToken Lexer::scanHTMLQuote()
 
 LexerToken Lexer::scanScript()
 {
-	return scanScope(Lexer::scriptScopeTokens, false);
 	unsigned int startPosition = currPosition;
-	while(currPosition < toParse.size() && !isNext(Lexer::OPEN_SLASHED_TAG))
+	LexerToken token = LexerToken::getInvalid();
+	while(currPosition < toParse.size() && !isNext(Lexer::scriptScopeTokens))
 	{
 		if (isNext(Lexer::QUOTE_SIGN))
 		{
@@ -144,7 +144,12 @@ LexerToken Lexer::scanScript()
 		}
 		currPosition++;
 	}
-	return getWordFrom(startPosition);
+	token = getWordFrom(startPosition);
+	if(!token.isValid() && currPosition < toParse.size())
+	{
+		token = scanFor(Lexer::scriptScopeTokens);
+	}
+	return token;
 }
 
 void Lexer::skipScriptQuote()
