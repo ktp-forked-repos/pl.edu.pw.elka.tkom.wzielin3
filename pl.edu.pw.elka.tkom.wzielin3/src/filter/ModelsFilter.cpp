@@ -6,6 +6,7 @@
  */
 
 #include "ModelsFilter.h"
+#include "../common/Utils.h"
 
 ModelsFilter::ModelsFilter(std::vector<ResultModel*> models)
 {
@@ -23,12 +24,12 @@ std::vector<ResultModel*> ModelsFilter::getModels()
 	return models;
 }
 
-void ModelsFilter::applyThreatTypeFilter(ThreatType type)
+void ModelsFilter::applyThreatTypeFilter(std::string threat)
 {
 	std::vector<ResultModel*> newModels;
 	for (unsigned int i = 0; i < models.size(); ++i)
 	{
-		if (models[i]->threatType == type)
+		if (Utils::stringsEqual(models[i]->threatType, threat))
 		{
 			newModels.push_back(models[i]);
 		}
@@ -37,12 +38,12 @@ void ModelsFilter::applyThreatTypeFilter(ThreatType type)
 }
 
 
-void ModelsFilter::applyMalwareTypeFilter(MalwareType type)
+void ModelsFilter::applyMalwareTypeFilter(std::string malware)
 {
 	std::vector<ResultModel*> newModels;
 	for (unsigned int i = 0; i < models.size(); ++i)
 	{
-		if (models[i]->malwareType == type)
+		if (Utils::stringsEqual(models[i]->malwareType, malware))
 		{
 			newModels.push_back(models[i]);
 		}

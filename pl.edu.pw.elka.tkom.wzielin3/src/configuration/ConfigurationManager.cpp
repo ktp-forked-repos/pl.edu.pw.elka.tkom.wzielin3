@@ -8,22 +8,7 @@
 #include<algorithm>
 #include "ConfigurationManager.h"
 #include "../log/ConsoleLog.h"
-
-const std::map<std::string, ThreatType> ConfigurationManager::stringToThreatType =
-{
-{ "botnetcc", ThreatType::BotnetCC },
-{ "paymentsite", ThreatType::PaymentSite },
-{ "distributionsite", ThreatType::DistributionSite }, };
-const std::map<std::string, MalwareType> ConfigurationManager::stringToMalwareType =
-{
-{ "teslacrypt", MalwareType::TeslaCrypt },
-{ "cryptowall", MalwareType::CryptoWall },
-{ "torrentlocker", MalwareType::TorrentLocker },
-{ "padcrypt", MalwareType::PadCrypt },
-{ "locky", MalwareType::Locky },
-{ "ctblocker", MalwareType::CTBLocker },
-{ "fakben", MalwareType::FAKBEN },
-{ "paycrypt", MalwareType::PayCrypt }, };
+#include "../common/Utils.h"
 
 ConfigurationManager::ConfigurationManager(int argc, char** argv)
 {
@@ -33,21 +18,21 @@ ConfigurationManager::ConfigurationManager(int argc, char** argv)
 
 	for (int i = 1; i < argc - 1; i += 2)
 	{
-		std::string command = GetLowerCase(argv[i]);
-		std::string value = GetLowerCase(argv[i + 1]);
-		if (command == "-malware")
+		std::string command = argv[i];
+		std::string value = argv[i + 1];
+		if (Utils::stringsEqual(command, "-malware"))
 		{
 			ConfigureMalwareFilter(value);
 		}
-		else if (command == "-threat")
+		else if (Utils::stringsEqual(command, "-threat"))
 		{
 			ConfigureThreatFilter(value);
 		}
-		else if (command == "-url")
+		else if (Utils::stringsEqual(command, "-url"))
 		{
 			path = value;
 		}
-		else if(command == "-file")
+		else if(Utils::stringsEqual(command, "-file"))
 		{
 			path = value;
 			readFromFile = true;
@@ -68,45 +53,18 @@ ConfigurationManager::~ConfigurationManager()
 
 void ConfigurationManager::ConfigureMalwareFilter(std::string argv)
 {
-	std::map<std::string, MalwareType>::const_iterator it =
-			stringToMalwareType.find(argv);
-	if (it != stringToMalwareType.end())
+	if (argv.size() > 0)
 	{
 		applyMalwareFilter = true;
-		malwareType = it->second;
-	}
-	else
-	{
-		ConsoleLog log;
-		log.logError(
-				"Malware filter " + argv
-						+ " not found. Must be one of following: TeslaCrypt, "
-								"CryptoWall, TorrentLocker, PadCrypt, Locky, CTBLocker, FAKBEN, PayCrypt.");
+		malwareType = argv;
 	}
 }
 
 void ConfigurationManager::ConfigureThreatFilter(std::string argv)
 {
-	std::map<std::string, ThreatType>::const_iterator it =
-			stringToThreatType.find(argv);
-	if (it != stringToThreatType.end())
+	if (argv.size() > 0)
 	{
 		applyThreatFilter = true;
-		threaType = it->second;
+		threaType = argv;
 	}
-	else
-	{
-		ConsoleLog log;
-		log.logError(
-				"Threat filter " + argv
-						+ " not found. Must be one of following: "
-								"BotnetCC, PaymentSite, DistributionSite.");
-	}
-}
-
-std::string ConfigurationManager::GetLowerCase(char* arg)
-{
-	std::string str(arg);
-	std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-	return str;
 }

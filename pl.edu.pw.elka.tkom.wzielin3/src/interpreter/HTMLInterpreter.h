@@ -36,9 +36,6 @@ private:
 	//Root of the whole document
 	HTMLElement* root;
 
-	static const std::map<std::string, ThreatType> stringToThreatType;
-	static const std::map<std::string, MalwareType> stringToMalwareType;
-
 	/**
 	 * Method that looks for a table with a class of "maintable"
 	 * @param startFrom HTMLElement that should be searched

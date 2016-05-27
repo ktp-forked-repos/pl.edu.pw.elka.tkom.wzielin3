@@ -7,6 +7,7 @@
 
 #include "HTMLInterpreter.h"
 #include "../log/ConsoleLog.h"
+#include "../common/Utils.h"
 
 HTMLInterpreter::HTMLInterpreter(HTMLElement* root)
 {
@@ -16,22 +17,6 @@ HTMLInterpreter::HTMLInterpreter(HTMLElement* root)
 HTMLInterpreter::~HTMLInterpreter()
 {
 }
-
-const std::map<std::string, ThreatType> HTMLInterpreter::stringToThreatType =
-{
-{ "Botnet C&amp;C", ThreatType::BotnetCC },
-{ "Payment Site", ThreatType::PaymentSite },
-{ "Distribution Site", ThreatType::DistributionSite }, };
-const std::map<std::string, MalwareType> HTMLInterpreter::stringToMalwareType =
-{
-{ "TeslaCrypt", MalwareType::TeslaCrypt },
-{ "CryptoWall", MalwareType::CryptoWall },
-{ "TorrentLocker", MalwareType::TorrentLocker },
-{ "PadCrypt", MalwareType::PadCrypt },
-{ "Locky", MalwareType::Locky },
-{ "CTB-Locker", MalwareType::CTBLocker },
-{ "FAKBEN", MalwareType::FAKBEN },
-{ "PayCrypt", MalwareType::PayCrypt }, };
 
 std::vector<ResultModel*> HTMLInterpreter::interpret()
 {
@@ -58,16 +43,11 @@ std::vector<ResultModel*> HTMLInterpreter::interpret()
 ResultModel* HTMLInterpreter::interpretTableRow(HTMLElement* tableRow)
 {
 	ResultModel* model = new ResultModel();
-	std::string threatTypeString =
-			tableRow->innerElements[1]->innerElements[0]->innerElements[0]->textContent;
-	std::string malwareTypeString =
-			tableRow->innerElements[2]->innerElements[0]->innerElements[0]->textContent;
 
 	model->date = tableRow->innerElements[0]->innerElements[0]->textContent;
-	model->threatType = stringToThreatType.find(threatTypeString)->second;
-	model->malwareType = stringToMalwareType.find(malwareTypeString)->second;
-	model->host =
-			tableRow->innerElements[3]->innerElements[1]->innerElements[0]->textContent;
+	model->threatType = tableRow->innerElements[1]->innerElements[0]->innerElements[0]->textContent;
+	model->malwareType = tableRow->innerElements[2]->innerElements[0]->innerElements[0]->textContent;
+	model->host = tableRow->innerElements[3]->innerElements[1]->innerElements[0]->textContent;
 	return model;
 }
 
@@ -84,19 +64,9 @@ bool HTMLInterpreter::isValidTableRow(HTMLElement* tableRow)
 	{
 		return false;
 	}
-	std::string threatType = tableRow->innerElements[1]->innerElements[0]->innerElements[0]->textContent;
-	if(stringToThreatType.find(threatType) == stringToThreatType.end())
-	{
-		return false;
-	}
 	//validate malwareType column
 	if(tableRow->innerElements.size() < 3 || tableRow->innerElements[2]->innerElements.size() == 0
 			|| tableRow->innerElements[2]->innerElements[0]->innerElements.size() == 0)
-	{
-		return false;
-	}
-	std::string malwareType = tableRow->innerElements[2]->innerElements[0]->innerElements[0]->textContent;
-	if(stringToMalwareType.find(malwareType) == stringToMalwareType.end())
 	{
 		return false;
 	}
@@ -115,15 +85,16 @@ HTMLElement* HTMLInterpreter::getTableRoot(HTMLElement* startFrom)
 	for (unsigned int i = 0; i < attrs.size(); ++i)
 	{
 		HTMLAttribute* attr = attrs[i];
-		if (attr->name == "class")
+		if (Utils::stringsEqual(attr->name, "class"))
 		{
 			std::vector<std::string> values = attr->values;
 			for (unsigned int j = 0; j < values.size(); ++j)
 			{
 				std::string value = values[j];
-				if (value == "maintable")
+				if (Utils::stringsEqual(value, "maintable"))
 				{
-					if (startFrom->innerElements.size() > 0 && startFrom->innerElements[0]->name == "tbody")
+					if (startFrom->innerElements.size() > 0
+							&& Utils::stringsEqual(startFrom->innerElements[0]->name, "tbody"))
 					{
 						return startFrom->innerElements[0];
 					}

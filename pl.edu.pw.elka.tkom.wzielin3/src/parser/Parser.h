@@ -116,10 +116,5 @@ private:
 	 * @parser message to be registered.
 	 */
 	void logError(std::string message);
-
-	/**
-	 * Returns true if strings are equal case insensitive.
-	 */
-	bool equal(std::string a, std::string b);
 };
 #endif /* PARSER_PARSER_H_ */

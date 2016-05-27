@@ -10,6 +10,7 @@
 #include<iostream>
 #include <sstream>
 #include "../log/ConsoleLog.h"
+#include "../common/Utils.h"
 
 Parser::Parser(Lexer* lexer, HTMLElement* root)
 {
@@ -84,7 +85,7 @@ void Parser::parseElement(HTMLElement* element)
 	token = lexer->scanTag();
 	expectTokenOfType(LexerTokenType::WORD);
 	element->name = token.getText();
-	if(equal(element->name, SCRIPT_TEXT))
+	if(Utils::stringsEqual(element->name, SCRIPT_TEXT))
 	{
 		parseScript(element);
 		return;
@@ -208,11 +209,4 @@ void Parser::logError(std::string message)
 	error += message;
 	ConsoleLog log;
 	log.logError(error);
-}
-
-bool Parser::equal(std::string a, std::string b)
-{
-	std::transform(a.begin(), a.end(), a.begin(), ::tolower);
-	std::transform(b.begin(), b.end(), b.begin(), ::tolower);
-	return a == b;
 }

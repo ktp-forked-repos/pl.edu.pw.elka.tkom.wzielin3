@@ -10,7 +10,6 @@
 
 #include<vector>
 #include"../interpreter/ResultModel.h"
-#include"../consts/Enums.h"
 
 class ModelsFilter
 {
@@ -30,16 +29,16 @@ public:
 
 	/**
 	 * Method that applies filter based on ThreatType to models stored in this filter.
-	 * @param type ThreatType that has to match for a model to pass filter
+	 * @param threat ThreatType that has to match for a model to pass filter
 	 */
-	void applyThreatTypeFilter(ThreatType type);
+	void applyThreatTypeFilter(std::string threat);
 
 
 	/**
 	 * Method that applies filter based on MalwareType to models stored in this filter.
-	 * @param type MalwareType that has to match for a model to pass filter
+	 * @param malware MalwareType that has to match for a model to pass filter
 	 */
-	void applyMalwareTypeFilter(MalwareType type);
+	void applyMalwareTypeFilter(std::string malware);
 
 private:
 	std::vector<ResultModel*> models;

@@ -9,9 +9,6 @@
 
 ResultModel::ResultModel()
 {
-	//mock default values
-	threatType = ThreatType::BotnetCC;
-	malwareType = MalwareType::CTBLocker;
 }
 
 ResultModel::~ResultModel()

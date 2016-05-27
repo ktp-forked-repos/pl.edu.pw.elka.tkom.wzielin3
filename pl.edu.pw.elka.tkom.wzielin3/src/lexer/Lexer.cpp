@@ -8,6 +8,7 @@
 #include "Lexer.h"
 #include <sstream>
 #include "../log/ConsoleLog.h"
+#include "../common/Utils.h"
 
 Lexer::Lexer(std::string toParse) :
 		currPosition(0), toParse(toParse)
@@ -111,7 +112,7 @@ bool Lexer::isNext(std::list<std::pair<LexerTokenType, std::string> > tokens)
 
 bool Lexer::isNext(std::string word)
 {
-	return toParse.substr(currPosition, word.size()) == word;
+	return Utils::stringsEqual(toParse.substr(currPosition, word.size()), word);
 }
 
 LexerToken Lexer::scanText()
@@ -215,10 +216,10 @@ bool Lexer::skipWhitespaces()
 
 bool Lexer::skipComment()
 {
-	if(currPosition  + 3 < toParse.size() && toParse.substr(currPosition, 4) == OPEN_COMMENT)
+	if(currPosition  + 3 < toParse.size() && Utils::stringsEqual(toParse.substr(currPosition, 4), OPEN_COMMENT))
 	{
 		currPosition += 4;
-		while(currPosition + 2 < toParse.size() && toParse.substr(currPosition, 3) != CLOSE_COMMENT)
+		while(currPosition + 2 < toParse.size() && !Utils::stringsEqual(toParse.substr(currPosition, 3), CLOSE_COMMENT))
 		{
 			currPosition++;
 		}

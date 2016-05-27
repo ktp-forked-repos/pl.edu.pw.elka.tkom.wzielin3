@@ -17,22 +17,6 @@ ConsoleLog::~ConsoleLog()
 {
 }
 
-const std::map<ThreatType, std::string> ConsoleLog::threatTypeToString =
-{
-{ ThreatType::BotnetCC, "BotnetCC" },
-{ ThreatType::PaymentSite, "PaymentSite" },
-{ ThreatType::DistributionSite, "DistributionSite" }, };
-const std::map<MalwareType, std::string> ConsoleLog::malwareTypeToString =
-{
-{ MalwareType::TeslaCrypt, "TeslaCrypt" },
-{ MalwareType::CryptoWall, "CryptoWall" },
-{ MalwareType::TorrentLocker, "TorrentLocker" },
-{ MalwareType::PadCrypt, "PadCrypt" },
-{ MalwareType::Locky, "Locky" },
-{ MalwareType::CTBLocker, "CTBLocker" },
-{ MalwareType::FAKBEN, "FAKBEN" },
-{ MalwareType::PayCrypt, "PayCrypt" }, };
-
 void ConsoleLog::logResults(std::vector<ResultModel*> models)
 {
 	std::cout << "{\"results\":[";
@@ -51,8 +35,8 @@ void ConsoleLog::logResults(std::vector<ResultModel*> models)
 void ConsoleLog::logResult(ResultModel* model)
 {
 	std::cout << "{\"date\":\"" << model->date
-			<< "\",\"threat\":\"" << threatTypeToString.find(model->threatType)->second
-			<< "\",\"malware\":\"" << malwareTypeToString.find(model->malwareType)->second
+			<< "\",\"threat\":\"" << model->threatType
+			<< "\",\"malware\":\"" << model->malwareType
 			<< "\",\"host\":\"" << model->host
 			<< "\"}";
 }

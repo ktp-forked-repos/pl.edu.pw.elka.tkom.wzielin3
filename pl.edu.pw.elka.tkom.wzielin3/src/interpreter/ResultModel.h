@@ -10,7 +10,6 @@
 
 #include<string>
 #include<map>
-#include"../consts/Enums.h"
 
 /**
  * Objects of this class represent a single entry in the table of parsed HTML.
@@ -22,8 +21,8 @@ public:
 	virtual ~ResultModel();
 
 	std::string date;
-	ThreatType threatType;
-	MalwareType malwareType;
+	std::string threatType;
+	std::string malwareType;
 	std::string host;
 };
 

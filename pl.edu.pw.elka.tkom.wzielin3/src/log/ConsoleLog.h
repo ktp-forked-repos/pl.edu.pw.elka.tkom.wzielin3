@@ -10,7 +10,6 @@
 
 #include<vector>
 #include"../interpreter/ResultModel.h"
-#include"../consts/Enums.h"
 
 class ConsoleLog
 {
@@ -35,9 +34,6 @@ private:
 	 * @param model ResultModel to display
 	 */
 	void logResult(ResultModel* model);
-
-	static const std::map<ThreatType, std::string> threatTypeToString;
-	static const std::map<MalwareType, std::string> malwareTypeToString;
 };
 
 #endif /* LOG_CONSOLELOG_H_ */
