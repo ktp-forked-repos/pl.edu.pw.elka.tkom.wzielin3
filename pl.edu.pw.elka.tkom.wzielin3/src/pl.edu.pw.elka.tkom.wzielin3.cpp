@@ -9,6 +9,7 @@
 #include <iostream>
 #include "configuration/ConfigurationManager.h"
 #include "interpreter/HTMLInterpreter.h"
+#include "interpreter-details/DetailsInterpreter.h"
 #include "filter/ModelsFilter.h"
 #include "http/Http.h"
 #include "log/ConsoleLog.h"
@@ -29,21 +30,27 @@ int main(int argc, char** argv)
 	HTMLElement root;
 	Parser(&lexer, &root).parse();
 
-	HTMLInterpreter interpreter(&root);
-	std::vector<ResultModel*> allModels = interpreter.interpret();
-
-	ModelsFilter filter(allModels);
-	if (configuration.applyMalwareFilter)
+	if(configuration.single)
 	{
-		filter.applyMalwareTypeFilter(configuration.malwareType);
+		DetailsInterpreter interpreter(&root);
+		DetailsResultModel model = interpreter.interpret();
+		ConsoleLog().logResult(model);
 	}
-	if (configuration.applyThreatFilter)
+	else
 	{
-		filter.applyThreatTypeFilter((configuration.threaType));
+		HTMLInterpreter interpreter(&root);
+		std::vector<ResultModel*> allModels = interpreter.interpret();
+		ModelsFilter filter(allModels);
+		if (configuration.applyMalwareFilter)
+		{
+			filter.applyMalwareTypeFilter(configuration.malwareType);
+		}
+		if (configuration.applyThreatFilter)
+		{
+			filter.applyThreatTypeFilter((configuration.threaType));
+		}
+		std::vector<ResultModel*> filteredModels = filter.getModels();
+		ConsoleLog().logResults(filteredModels);
 	}
-
-	std::vector<ResultModel*> filteredModels = filter.getModels();
-
-	ConsoleLog().logResults(filteredModels);
 	return 0;
 }

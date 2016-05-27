@@ -10,6 +10,7 @@
 
 #include<vector>
 #include"../interpreter/ResultModel.h"
+#include"../interpreter-details/DetailsResultModel.h"
 
 class ConsoleLog
 {
@@ -24,10 +25,20 @@ public:
 	void logError(std::string message);
 
 	/**
+	 * Displays help for this program.
+	 */
+	void logHelp();
+
+	/**
 	 * Displays results on standard output as JSON.
 	 * @param models ResultModel collection to display
 	 */
 	void logResults(std::vector<ResultModel*> models);
+
+	/**
+	 * Used for logging single result
+	 */
+	void logResult(DetailsResultModel model);
 private:
 	/**
 	 * Displays single ResultModel on standard output as JSON.

@@ -27,6 +27,8 @@ public:
 	ConfigurationManager(int argc, char** argv);
 	virtual ~ConfigurationManager();
 
+	/**Specifies which interpreter should be used. if true details interpreter is used.*/
+	bool single = false;
 	bool readFromFile = false;
 	bool applyMalwareFilter;
 	bool applyThreatFilter;

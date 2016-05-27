@@ -16,10 +16,26 @@ ConfigurationManager::ConfigurationManager(int argc, char** argv)
 	applyMalwareFilter = false;
 	applyThreatFilter = false;
 
-	for (int i = 1; i < argc - 1; i += 2)
+	for (int i = 1; i < argc; i++)
 	{
 		std::string command = argv[i];
-		std::string value = argv[i + 1];
+		//flags without values
+		if(Utils::stringsEqual(command, "-single"))
+		{
+			single = true;
+			continue;
+		}
+		if(Utils::stringsEqual(command, "-help"))
+		{
+			ConsoleLog().logHelp();
+		}
+		//flags with values
+		i++;
+		if(i >= argc)
+		{
+			ConsoleLog().logError("Command " + command + " not found. See -help for more details");
+		}
+		std::string value = argv[i];
 		if (Utils::stringsEqual(command, "-malware"))
 		{
 			ConfigureMalwareFilter(value);
@@ -39,10 +55,7 @@ ConfigurationManager::ConfigurationManager(int argc, char** argv)
 		}
 		else
 		{
-			ConsoleLog log;
-			log.logError(
-					"Command " + command
-							+ " not found. Available commands: -malware, -threat, -url.");
+			ConsoleLog().logError("Command " + command + " not found. See -help for more details");
 		}
 	}
 }
